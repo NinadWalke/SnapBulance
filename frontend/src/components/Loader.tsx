@@ -1,12 +1,12 @@
 import * as React from 'react';
 
-export interface LoaderProps {
-    
-}
+export interface LoaderProps {}
  
 const Loader: React.FC<LoaderProps> = () => {
     return ( 
-        <h1>Loader</h1>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+            <h2>Loading... ⏳</h2>
+        </div>
      );
 }
  
