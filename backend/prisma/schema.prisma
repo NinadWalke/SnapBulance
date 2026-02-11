@@ -1,0 +1,217 @@
+// 1. Configuration
+generator client {
+  provider = "prisma-client-js"
+  // output is REMOVED. It defaults to node_modules/@prisma/client
+  // This ensures TS finds the types automatically.
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------
+// 2. Enums (The Fixed Options)
+// ---------------------------------------------------------
+
+enum Role {
+  USER
+  DRIVER
+  HOSPITAL_ADMIN
+  CFR         // Community First Responder
+  SYS_ADMIN
+}
+
+enum AmbulanceType {
+  BLS  // Basic Life Support
+  ALS  // Advanced Life Support (ICU on wheels)
+  PTV  // Patient Transport Vehicle
+}
+
+enum DriverStatus {
+  OFFLINE
+  AVAILABLE
+  BUSY
+  ON_BREAK
+}
+
+enum TripStatus {
+  SEARCHING   // User requested, looking for driver
+  ASSIGNED    // Driver accepted
+  EN_ROUTE    // Driver moving to patient
+  ARRIVED     // Driver at patient location
+  ON_BOARD    // Patient in ambulance (Trip to hospital starts)
+  COMPLETED   // Handover complete
+  CANCELLED
+}
+
+enum SeverityLevel {
+  LOW
+  MODERATE
+  CRITICAL
+  LIFE_THREATENING
+}
+
+// ---------------------------------------------------------
+// 3. Core Identity & Profiles
+// ---------------------------------------------------------
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  phone           String    @unique
+  passwordHash    String
+  fullName        String
+  role            Role      @default(USER)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Push Notification Tokens (FCM)
+  fcmToken        String?   
+
+  // Relations
+  driverProfile   DriverProfile?
+  cfrProfile      CFRProfile?
+  hospitalProfile HospitalProfile?
+  
+  tripsAsPassenger Trip[]   @relation("PassengerTrips")
+  alertsReceived  ProximityAlert[]
+}
+
+model DriverProfile {
+  id              String        @id @default(uuid())
+  userId          String        @unique
+  user            User          @relation(fields: [userId], references: [id])
+  licenseNumber   String        @unique
+  yearsExperience Int
+  rating          Float         @default(5.0)
+  
+  status          DriverStatus  @default(OFFLINE)
+  currentLat      Float?
+  currentLng      Float?
+  lastLocationUpdate DateTime?
+
+  ambulanceId     String?       @unique 
+  ambulance       Ambulance?    @relation(fields: [ambulanceId], references: [id])
+  trips           Trip[]        @relation("DriverTrips")
+}
+
+model CFRProfile {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id])
+  
+  certificationId String    
+  isVerified      Boolean   @default(false)
+  
+  respondedEvents Trip[]    @relation("CFRResponders") 
+}
+
+// ---------------------------------------------------------
+// 4. Fleet & Infrastructure
+// ---------------------------------------------------------
+
+model Ambulance {
+  id              String        @id @default(uuid())
+  plateNumber     String        @unique
+  type            AmbulanceType
+  model           String        
+  equipmentList   String[]      
+  
+  currentDriver   DriverProfile?
+}
+
+model Hospital {
+  id              String    @id @default(uuid())
+  name            String
+  address         String
+  latitude        Float
+  longitude       Float
+  phone           String
+  
+  availableBeds   Int       @default(0)
+  icuAvailable    Int       @default(0)
+  specialties     String[]  
+  
+  admins          HospitalProfile[]
+  incomingTrips   Trip[]    @relation("DestinationHospital")
+}
+
+model HospitalProfile {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id])
+  
+  hospitalId      String
+  hospital        Hospital  @relation(fields: [hospitalId], references: [id])
+}
+
+// ---------------------------------------------------------
+// 5. The Trip (Core Transaction)
+// ---------------------------------------------------------
+
+model Trip {
+  id              String      @id @default(uuid())
+  status          TripStatus  @default(SEARCHING)
+  
+  pickupAddress   String
+  pickupLat       Float
+  pickupLng       Float
+  
+  destAddress     String?     
+  destLat         Float?
+  destLng         Float?
+  
+  passengerId     String
+  passenger       User        @relation("PassengerTrips", fields: [passengerId], references: [id])
+  
+  driverId        String?
+  driver          DriverProfile? @relation("DriverTrips", fields: [driverId], references: [id])
+  
+  hospitalId      String?
+  hospital        Hospital?   @relation("DestinationHospital", fields: [hospitalId], references: [id])
+  
+  responders      CFRProfile[] @relation("CFRResponders")
+  medicalReport   MedicalReport?
+  
+  requestedAt     DateTime    @default(now())
+  acceptedAt      DateTime?
+  pickedUpAt      DateTime?
+  completedAt     DateTime?
+  
+  routePolyline   String?     
+  distanceKm      Float?
+}
+
+// ---------------------------------------------------------
+// 6. Medical & AI Triage
+// ---------------------------------------------------------
+
+model MedicalReport {
+  id              String        @id @default(uuid())
+  tripId          String        @unique
+  trip            Trip          @relation(fields: [tripId], references: [id])
+  
+  paramedicNotes  String?       
+  aiSummary       String?       
+  suspectedCondition String?    
+  severity        SeverityLevel @default(MODERATE)
+  vitalsCheck     Json?         
+  
+  createdAt       DateTime      @default(now())
+}
+
+// ---------------------------------------------------------
+// 7. Operations & Alerts
+// ---------------------------------------------------------
+
+model ProximityAlert {
+  id              String    @id @default(uuid())
+  sentAt          DateTime  @default(now())
+  
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  
+  triggerTripId   String    
+  userLocationLat Float     
+  userLocationLng Float
+}
