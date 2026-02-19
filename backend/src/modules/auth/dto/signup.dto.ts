@@ -1,16 +1,14 @@
 import { IsEmail, IsNotEmpty, IsString, MinLength, IsEnum, IsOptional } from 'class-validator';
 import { Role } from '@prisma/client';
 
-export class AuthDto {
+export class SignupDto {
   @IsEmail()
   email: string;
 
   @IsString()
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
-  password: string;
-}
+  passwordHash: string;
 
-export class SignupDto extends AuthDto {
   @IsString()
   @IsNotEmpty()
   fullName: string;
