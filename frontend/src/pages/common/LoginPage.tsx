@@ -1,62 +1,99 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-
-/*
-We'll be using a Redis-based cache layer here, to fetch accounts or emails based on the role selected, this optimizes the login performance
-*/
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuthStore } from '../../store/useAuthStore'; // Adjust path as needed
 
 export interface LoginPageProps {}
 
 const LoginPage: React.FC<LoginPageProps> = () => {
-    const navigate = useNavigate();
-    const [role, setRole] = useState<'USER' | 'DRIVER' | 'HOSPITAL'>('USER');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { login, isLoading } = useAuthStore();
 
-    const handleLogin = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Simulate Login Logic based on Role
-        if (role === 'USER') navigate('/user/home');
-        if (role === 'DRIVER') navigate('/driver/dashboard');
-        if (role === 'HOSPITAL') navigate('/hospital/dashboard');
-    };
+  // Form state
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
-    return ( 
-        <div style={{ padding: '2rem', maxWidth: '400px', margin: '0 auto', textAlign: 'center' }}>
-            <h1>🔐 Login</h1>
-            
-            {/* Role Toggle */}
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', justifyContent: 'center' }}>
-                <button 
-                    onClick={() => setRole('USER')}
-                    style={{ padding: '0.5rem', background: role === 'USER' ? 'blue' : '#ddd', color: role === 'USER' ? 'white' : 'black' }}>
-                    User
-                </button>
-                <button 
-                    onClick={() => setRole('DRIVER')}
-                    style={{ padding: '0.5rem', background: role === 'DRIVER' ? 'blue' : '#ddd', color: role === 'DRIVER' ? 'white' : 'black' }}>
-                    Driver
-                </button>
-                <button 
-                    onClick={() => setRole('HOSPITAL')}
-                    style={{ padding: '0.5rem', background: role === 'HOSPITAL' ? 'blue' : '#ddd', color: role === 'HOSPITAL' ? 'white' : 'black' }}>
-                    Hospital
-                </button>
-            </div>
+  // The ProtectedRoute passes the attempted URL in location.state.from
+  const from = location.state?.from?.pathname || null;
 
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <input type="email" placeholder="Email" style={{ padding: '0.8rem' }} />
-                <input type="password" placeholder="Password" style={{ padding: '0.8rem' }} />
-                
-                <button type="submit" style={{ padding: '1rem', background: 'green', color: 'white', border: 'none', cursor: 'pointer' }}>
-                    Login as {role}
-                </button>
-            </form>
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
 
-            <p style={{ marginTop: '1.5rem' }}>
-                Don't have an account? <Link to="/register" style={{ color: 'blue' }}>Register here</Link>
-            </p>
+    try {
+      // DTO expects email and passwordHash
+      await login({ email, passwordHash: password });
+
+      // Get the fresh user state to determine routing
+      const user = useAuthStore.getState().user;
+
+      // If they were redirected here from a protected route, send them back
+      if (from) {
+        navigate(from, { replace: true });
+        return;
+      }
+
+      // Otherwise, route them based on their actual role from the backend
+      if (user?.role === 'USER') navigate('/user/home', { replace: true });
+      else if (user?.role === 'DRIVER') navigate('/driver/dashboard', { replace: true });
+      else if (user?.role === 'HOSPITAL_ADMIN') navigate('/hospital/dashboard', { replace: true });
+      else navigate('/', { replace: true }); // Fallback
+
+    } catch (error: any) {
+      setErrorMsg(error.response?.data?.message || 'Invalid email or password');
+    }
+  };
+
+  return (
+    <div style={{ padding: '2rem', maxWidth: '400px', margin: '0 auto', textAlign: 'center' }}>
+      <h1>🔐 Login to SnapBulance</h1>
+
+      {errorMsg && (
+        <div style={{ color: 'red', marginBottom: '1rem', padding: '0.5rem', background: '#ffe6e6', borderRadius: '4px' }}>
+          {errorMsg}
         </div>
-     );
-}
- 
+      )}
+
+      <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <input
+          type="email"
+          placeholder="Email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={{ padding: '0.8rem' }}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{ padding: '0.8rem' }}
+        />
+
+        <button 
+          type="submit" 
+          disabled={isLoading}
+          style={{ 
+            padding: '1rem', 
+            background: isLoading ? '#999' : 'green', 
+            color: 'white', 
+            border: 'none', 
+            cursor: isLoading ? 'not-allowed' : 'pointer' 
+          }}
+        >
+          {isLoading ? 'Authenticating...' : 'Login'}
+        </button>
+      </form>
+
+      <p style={{ marginTop: '1.5rem' }}>
+        Don't have an account? <Link to="/register" style={{ color: 'blue' }}>Register here</Link>
+      </p>
+    </div>
+  );
+};
+
 export default LoginPage;

@@ -9,7 +9,16 @@ import { TripsModule } from './modules/trips/trips.module';
 import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), AuthModule, PrismaModule, UsersModule, DriversModule, HospitalsModule, TripsModule, ReportsModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule,
+    PrismaModule,
+    UsersModule,
+    DriversModule,
+    HospitalsModule,
+    TripsModule,
+    ReportsModule,
+  ],
   controllers: [],
   providers: [],
 })
