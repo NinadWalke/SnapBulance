@@ -15,10 +15,10 @@ import NotFoundPage from './pages/common/NotFoundPage'
 import UnauthorizedPage from './pages/common/UnauthorizedPage'
 
 // 2. User
-import UserHome from './pages/user/UserHome'
-import LookingForDriver from './pages/user/LookingForDriver'
-import LiveTripTracking from './pages/user/LiveTripTracking'
-import RideHistory from './pages/user/RideHistory'
+import UserHome from './pages/user/trip/UserHome'
+import LookingForDriver from './pages/user/trip/LookingForDriver'
+import LiveTripTracking from './pages/user/trip/LiveTripTracking'
+import RideHistory from './pages/user/trip/RideHistory'
 import UserProfile from './pages/user/profile/UserProfile'
 import UserEditProfile from './pages/user/profile/UserEditProfile'
 
