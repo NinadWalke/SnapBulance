@@ -1,10 +1,8 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-// 1. Import your store and API client
-import { useAuthStore } from '../../store/useAuthStore';
-import { api } from '../../utils/api';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../../store/useAuthStore';
+import { api } from '../../../utils/api';
 
 export interface UserProfileProps {}
  
@@ -12,16 +10,14 @@ const UserProfile: React.FC<UserProfileProps> = () => {
     const { user, logout } = useAuthStore();
     const navigate = useNavigate();
     
-    // Local state to hold the freshly fetched profile data
     const [profileData, setProfileData] = useState<any>(user);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    // 2. Fetch fresh profile data from the backend
     const fetchProfile = async () => {
         setIsRefreshing(true);
         try {
-            // This hits your @UseGuards(JwtGuard) protected route
-            const response = await api.get('/auth/profile');
+            // Updated endpoint to hit the dedicated user controller
+            const response = await api.get('/users/profile');
             setProfileData(response.data);
         } catch (error) {
             console.error("Error fetching live profile data:", error);
@@ -30,14 +26,12 @@ const UserProfile: React.FC<UserProfileProps> = () => {
         }
     };
 
-    // Load fresh data when the component mounts
     useEffect(() => {
         fetchProfile();
     }, []);
 
-    // 3. Handle actual logout logic
     const handleLogout = async () => {
-        await logout(); // Clears the HTTP-only cookie and Zustand state
+        await logout(); 
         navigate('/login', { replace: true });
     };
 
@@ -63,7 +57,6 @@ const UserProfile: React.FC<UserProfileProps> = () => {
                     </div>
                 </div>
                 
-                {/* Refresh Button */}
                 <button 
                     onClick={fetchProfile} 
                     disabled={isRefreshing}
@@ -81,29 +74,27 @@ const UserProfile: React.FC<UserProfileProps> = () => {
 
             {/* Personal Details Card */}
             <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
-                <h3>Contact Info</h3>
+                <h3 style={{ marginTop: 0 }}>Contact Info</h3>
                 <p><strong>Email:</strong> {profileData.email}</p>
                 <p><strong>Phone:</strong> {profileData.phone}</p>
             </div>
 
-            {/* Medical ID Card - Currently using placeholders until Prisma schema is updated */}
+            {/* Dynamic Medical ID Card */}
             <div style={{ border: '1px solid #ffcccc', background: '#fff5f5', borderRadius: '8px', padding: '1rem', marginBottom: '2rem' }}>
                 <h3 style={{ color: '#d32f2f', marginTop: 0 }}>Medical ID 🏥</h3>
-                <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '-10px' }}>
-                    *These fields require a database schema update to be dynamic.
-                </p>
-                <p><strong>Blood Type:</strong> O+ (Placeholder)</p>
-                <p><strong>Allergies:</strong> Peanuts, Penicillin (Placeholder)</p>
-                <p><strong>Emergency Contact:</strong> Jane Doe (+91 99999 88888) (Placeholder)</p>
+                <p><strong>Blood Type:</strong> {profileData.bloodType || 'Not specified'}</p>
+                <p><strong>Allergies:</strong> {profileData.allergies || 'None listed'}</p>
+                <p><strong>Emergency Contact:</strong> {profileData.emergencyContact || 'Not specified'}</p>
             </div>
 
             {/* Action Buttons */}
             <div style={{ display: 'flex', gap: '1rem' }}>
-                <button style={{ padding: '0.8rem 1.5rem', cursor: 'pointer', border: '1px solid #333', background: 'transparent', borderRadius: '4px' }}>
-                    Edit Profile
-                </button>
+                <Link to={'/user/profile/edit'} style={{ textDecoration: 'none' }}>
+                    <button style={{ padding: '0.8rem 1.5rem', cursor: 'pointer', border: '1px solid #333', background: 'transparent', borderRadius: '4px', color: '#333' }}>
+                        Edit Profile
+                    </button>
+                </Link>
                 
-                {/* Replaced <Link> with the actual handleLogout function */}
                 <button 
                     onClick={handleLogout}
                     style={{ padding: '0.8rem 1.5rem', background: '#e63946', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}

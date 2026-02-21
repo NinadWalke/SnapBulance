@@ -56,25 +56,31 @@ enum SeverityLevel {
 // ---------------------------------------------------------
 
 model User {
-  id              String    @id @default(uuid())
-  email           String    @unique
-  phone           String    @unique
-  passwordHash    String
-  fullName        String
-  role            Role      @default(USER)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id               String    @id @default(uuid())
+  email            String    @unique
+  phone            String    @unique
+  passwordHash     String
+  fullName         String
+  role             Role      @default(USER)
+  
+  // --- New Medical Profile Fields ---
+  bloodType        String?   
+  allergies        String?   
+  emergencyContact String?   // E.g., "Jane Doe (+91 99999 88888)"
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   // Push Notification Tokens (FCM)
-  fcmToken        String?   
+  fcmToken         String?   
 
   // Relations
-  driverProfile   DriverProfile?
-  cfrProfile      CFRProfile?
-  hospitalProfile HospitalProfile?
+  driverProfile    DriverProfile?
+  cfrProfile       CFRProfile?
+  hospitalProfile  HospitalProfile?
   
   tripsAsPassenger Trip[]   @relation("PassengerTrips")
-  alertsReceived  ProximityAlert[]
+  alertsReceived   ProximityAlert[]
 }
 
 model DriverProfile {

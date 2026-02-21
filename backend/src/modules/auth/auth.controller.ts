@@ -40,7 +40,7 @@ export class AuthController {
   // 5. Protected Route: Get full profile
   @UseGuards(JwtGuard)
   @Get('profile')
-  async getUserProfile(@GetUser('id') userId: string) {
-    return this.authService.getUserProfile(userId);
+  async getUserProfile(@GetUser() user: User) {
+    return this.authService.getUserProfile(user.id);
   }
 }
