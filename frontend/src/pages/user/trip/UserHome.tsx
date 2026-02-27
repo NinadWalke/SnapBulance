@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import MapComponent from '../../../components/MapComponent';
+import { socket } from '../../../utils/socket';
 
 export interface UserHomeProps {}
  
@@ -28,6 +29,24 @@ const UserHome: React.FC<UserHomeProps> = () => {
         }
     }, []);
 
+    useEffect(() => {
+        // 1. connect socket
+        socket.connect();
+        // 2. ping server
+        socket.on('connect', () => {
+            socket.emit('pingServer', {test: 'Hello server!'});
+        })
+        // 3. recieve response
+        socket.on('pongClient', (data) => {
+            console.log(`Data received from the server: `, data);
+        })
+        // 4. cleanup
+        return () => {
+            socket.off('connect');
+            socket.off('pongClient');
+            socket.disconnect();
+        }
+    }, [])
     return ( 
         <div style={{ padding: '2rem', textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
             <h1 style={{ marginBottom: '0.5rem' }}>User Home</h1>
