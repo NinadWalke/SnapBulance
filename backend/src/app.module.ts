@@ -7,6 +7,7 @@ import { DriversModule } from './modules/drivers/drivers.module';
 import { HospitalsModule } from './modules/hospitals/hospitals.module';
 import { TripsModule } from './modules/trips/trips.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ReportsModule } from './modules/reports/reports.module';
     HospitalsModule,
     TripsModule,
     ReportsModule,
+    EventsModule,
   ],
   controllers: [],
   providers: [],
