@@ -6,6 +6,7 @@ import {
   WebSocketGateway,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @WebSocketGateway({
   cors: {
@@ -15,6 +16,9 @@ import { Server, Socket } from 'socket.io';
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
+
+  constructor(private prisma: PrismaService) {}
+
   handleConnection(client: Socket) {
     console.log(`🟢 Client connected: ${client.id}`);
   }
@@ -37,7 +41,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
   // 2. Handle chat messages
   @SubscribeMessage('sendChat')
-  handleSendChat(
+  async handleSendChat(
     client: Socket,
     payload: {
       tripId: string;
@@ -45,16 +49,72 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       message: string;
       senderId: string;
     },
-  ): void {
-    console.log(
-      `Chat in ${payload.tripId} from ${payload.senderName}: ${payload.message}`,
-    );
-    // Broadcast to everyone in the room using emit
+  ) {
+    // 1. Save message to PostgreSQL
+    const savedMsg = await this.prisma.chatMessage.create({
+      data: {
+        tripId: payload.tripId,
+        senderId: payload.senderId,
+        senderName: payload.senderName,
+        message: payload.message,
+      },
+    });
+
+    // 2. Broadcast the saved timestamp to everyone
     this.server.to(payload.tripId).emit('receiveChat', {
-      senderName: payload.senderName,
-      senderId: payload.senderId,
-      message: payload.message,
-      timestamp: new Date().toISOString(),
-    })
+      senderName: savedMsg.senderName,
+      senderId: savedMsg.senderId,
+      message: savedMsg.message,
+      timestamp: savedMsg.timestamp.toISOString(),
+    });
+  }
+  // ... inside EventsGateway class
+  // 3. Handle Driver Accepting Trip
+  @SubscribeMessage('acceptTrip')
+  async handleAcceptTrip(
+    client: Socket,
+    payload: { tripId: string; driverId: string },
+  ) {
+    try {
+      console.log(
+        `User ${payload.driverId} attempting to accept trip ${payload.tripId}`,
+      );
+
+      // 1. We received the User.id from React. Let's find their DriverProfile!
+      const driverProfile = await this.prisma.driverProfile.findUnique({
+        where: { userId: payload.driverId },
+      });
+
+      if (!driverProfile) {
+        console.error(
+          `ERROR: No DriverProfile found for User ID ${payload.driverId}`,
+        );
+        return; // Stop execution
+      }
+
+      // 2. Update the database using the correct DriverProfile ID!
+      await this.prisma.trip.update({
+        where: { id: payload.tripId },
+        data: {
+          status: 'ASSIGNED',
+          driverId: driverProfile.id, // Correct ID used here
+          acceptedAt: new Date(),
+        },
+      });
+
+      console.log(
+        `Trip successfully assigned to DriverProfile: ${driverProfile.id}`,
+      );
+
+      // 3. Broadcast to the user waiting in the room
+      this.server.to(payload.tripId).emit('tripAccepted', {
+        driverId: driverProfile.id,
+        message: 'Ambulance is en route!',
+        acceptedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      // If Prisma fails (e.g. invalid Trip ID), it will log here instead of failing silently
+      console.error('❌ Error during handleAcceptTrip:', error);
+    }
   }
 }

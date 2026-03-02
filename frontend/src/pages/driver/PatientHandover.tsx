@@ -1,17 +1,37 @@
 import * as React from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { api } from '../../utils/api';
 
 export interface PatientHandoverProps {}
  
 const PatientHandover: React.FC<PatientHandoverProps> = () => {
     const { tripId } = useParams();
     const navigate = useNavigate();
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Send data to backend -> Hospital Dashboard updates
+    const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!tripId) return;
+    
+    setIsSubmitting(true);
+
+    try {
+        // Hitting the endpoint EXACTLY as requested: /trips/:tripId/complete
+        await api.post(`/trips/${tripId}/complete`, {
+            action: 'complete_handover'
+        });
+
+        // Navigate to summary once the backend clears the statuses
         navigate(`/driver/summary/${tripId}`);
-    };
+        
+    } catch (error) {
+        console.error("Error during handover:", error);
+        alert("Failed to complete handover. Please try again.");
+    } finally {
+        setIsSubmitting(false);
+    }
+};
 
     return ( 
         <div style={{ padding: '2rem' }}>
@@ -35,7 +55,7 @@ const PatientHandover: React.FC<PatientHandoverProps> = () => {
 
                 <hr />
 
-                {/* Manual Fields */}
+                {/* Manual Fields (Ignored in submission for now) */}
                 <label>
                     <strong>Patient Condition</strong>
                     <select style={{ width: '100%', padding: '0.8rem', marginTop: '0.5rem' }}>
@@ -50,8 +70,20 @@ const PatientHandover: React.FC<PatientHandoverProps> = () => {
                     <input type="text" placeholder="Pulse (e.g. 90)" style={{ flex: 1, padding: '0.8rem' }} />
                 </div>
 
-                <button type="submit" style={{ padding: '1rem', background: 'green', color: 'white', border: 'none', marginTop: '1rem', fontSize: '1.1rem' }}>
-                    COMPLETE HANDOVER
+                <button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    style={{ 
+                        padding: '1rem', 
+                        background: isSubmitting ? '#ccc' : 'green', 
+                        color: 'white', 
+                        border: 'none', 
+                        marginTop: '1rem', 
+                        fontSize: '1.1rem',
+                        cursor: isSubmitting ? 'not-allowed' : 'pointer'
+                    }}
+                >
+                    {isSubmitting ? 'COMPLETING...' : 'COMPLETE HANDOVER'}
                 </button>
             </form>
         </div>

@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import MapComponent from '../../../components/MapComponent';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { socket } from '../../../utils/socket';
+import { api } from '../../../utils/api';
 
 export interface LiveTripTrackingProps {}
 
@@ -62,6 +63,21 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isChatOpen]);
+
+    // Add this right before your socket useEffect
+    useEffect(() => {
+        const fetchChatHistory = async () => {
+            if (!tripId) return;
+            try {
+                // Fetch previous messages from DB
+                const response = await api.get(`/users/trip/${tripId}/chat`);
+                setMessages(response.data);
+            } catch (error) {
+                console.error("Failed to load chat history", error);
+            }
+        };
+        fetchChatHistory();
+    }, [tripId]);
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();

@@ -1,4 +1,4 @@
-import { Controller, Post } from '@nestjs/common';
+import { Controller, Delete, Post } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service'; 
 import * as argon from 'argon2';
 
@@ -67,5 +67,24 @@ export class DevController {
         });
 
         return { message: 'Drivers and Ambulances created!', driver1, driver2 };
+    }
+
+    @Delete('reset-system')
+    async resetSystem() {
+        // 1. Delete all trips (and cascading medical reports)
+        const deletedTrips = await this.prisma.trip.deleteMany({});
+        
+        // 2. Force all drivers offline and clear their current trip assignments
+        const resetDrivers = await this.prisma.driverProfile.updateMany({
+            data: {
+                status: 'OFFLINE',
+            }
+        });
+
+        return { 
+            message: 'System reset for testing.', 
+            deletedTrips: deletedTrips.count,
+            resetDrivers: resetDrivers.count 
+        };
     }
 }

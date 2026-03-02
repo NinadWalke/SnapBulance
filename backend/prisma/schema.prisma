@@ -81,6 +81,7 @@ model User {
   
   tripsAsPassenger Trip[]   @relation("PassengerTrips")
   alertsReceived   ProximityAlert[]
+  sentMessages ChatMessage[]
 }
 
 model DriverProfile {
@@ -186,6 +187,8 @@ model Trip {
   
   routePolyline   String?     
   distanceKm      Float?
+
+  chatMessages ChatMessage[]
 }
 
 // ---------------------------------------------------------
@@ -220,4 +223,20 @@ model ProximityAlert {
   triggerTripId   String    
   userLocationLat Float     
   userLocationLng Float
+}
+
+// ---------------------------------------------------------
+// 8. Chat Messages
+// ---------------------------------------------------------
+model ChatMessage {
+  id          String   @id @default(uuid())
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  
+  senderId    String
+  sender      User     @relation(fields: [senderId], references: [id])
+  senderName  String   
+  
+  message     String
+  timestamp   DateTime @default(now())
 }

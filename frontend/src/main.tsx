@@ -69,7 +69,7 @@ const Layout = () => {
           {/* --- Protected USER Routes --- */}
           <Route element={<ProtectedRoute allowedRoles={['USER']} />}>
             <Route path="/user/home" element={<UserHome />} />
-            <Route path="/user/searching" element={<LookingForDriver />} />
+            <Route path="/user/searching/:tripId" element={<LookingForDriver />} />
             <Route path="/user/track/:tripId" element={<LiveTripTracking />} />
             <Route path="/user/history" element={<RideHistory />} />
             <Route path="/user/profile" element={<UserProfile />} />
