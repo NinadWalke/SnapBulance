@@ -8,6 +8,7 @@ import { HospitalsModule } from './modules/hospitals/hospitals.module';
 import { TripsModule } from './modules/trips/trips.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { EventsModule } from './events/events.module';
+import { DevModule } from './dev/dev.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { EventsModule } from './events/events.module';
     TripsModule,
     ReportsModule,
     EventsModule,
+    DevModule,
   ],
   controllers: [],
   providers: [],

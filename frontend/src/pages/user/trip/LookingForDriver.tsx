@@ -1,24 +1,36 @@
 import * as React from 'react';
 import { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { socket } from '../../../utils/socket'; // Import your socket
 
 export interface LookingForDriverProps {}
  
 const LookingForDriver: React.FC<LookingForDriverProps> = () => {
     const navigate = useNavigate();
+    const { tripId } = useParams();
 
-    // 3-second auto-redirect to simulate matching an ambulance
     useEffect(() => {
-        const timer = setTimeout(() => {
-            navigate('/user/track/trip_123');
-        }, 3000);
+        if (!tripId) return;
 
-        return () => clearTimeout(timer); // Cleanup if unmounted early
-    }, [navigate]);
+        // Connect and join the trip room to wait for updates
+        socket.connect();
+        socket.emit('joinTrip', tripId);
+
+        // Listen for the driver accepting the trip
+        socket.on('tripAccepted', (data) => {
+            console.log("Driver accepted!", data);
+            // Navigate to the tracking page now that we have a driver
+            navigate(`/user/track/${tripId}`);
+        });
+
+        return () => {
+            socket.off('tripAccepted');
+            // Don't disconnect here, we need it for the next page
+        };
+    }, [navigate, tripId]);
 
     return ( 
         <div style={{ padding: '2rem', textAlign: 'center', maxWidth: '600px', margin: '0 auto', marginTop: '10vh' }}>
-            {/* Injecting keyframes for the pulsing animation */}
             <style>{`
                 @keyframes pulse {
                     0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7); }
@@ -28,28 +40,20 @@ const LookingForDriver: React.FC<LookingForDriverProps> = () => {
             `}</style>
 
             <h1 style={{ color: '#333' }}>🔍 Locating Ambulance...</h1>
-            <p style={{ color: '#666' }}>Scanning a 2km radius around your location.</p>
+            <p style={{ color: '#666' }}>Trip ID: {tripId}</p>
             
             <div style={{ 
-                margin: '4rem auto', 
-                height: '120px', 
-                width: '120px', 
-                background: '#d32f2f', 
-                borderRadius: '50%', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                animation: 'pulse 1.5s infinite',
-                color: 'white',
-                fontSize: '2rem'
+                margin: '4rem auto', height: '120px', width: '120px', 
+                background: '#d32f2f', borderRadius: '50%', display: 'flex', 
+                alignItems: 'center', justifyContent: 'center',
+                animation: 'pulse 1.5s infinite', color: 'white', fontSize: '2rem'
             }}>
                 🚑
             </div>
             
-            {/* Manual bypass link just in case */}
             <div style={{ marginTop: '4rem', paddingTop: '1rem' }}>
                 <p style={{ color: '#888', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Match taking too long?</p>
-                <Link to="/user/track/trip_123">
+                <Link to={`/user/track/${tripId}`}>
                     <button style={{ padding: '0.6rem 1.2rem', background: '#333', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
                         Force Dev Match
                     </button>

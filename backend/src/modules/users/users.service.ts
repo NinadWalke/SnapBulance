@@ -47,4 +47,19 @@ export class UsersService {
       },
     });
   }
+  // --- Trip Logic ---
+  // Add this below your profile functions
+  async createTrip(passengerId: string, lat: number, lng: number) {
+    // Creates a new trip with a UUID and defaults to SEARCHING status
+    const newTrip = await this.prisma.trip.create({
+      data: {
+        passengerId,
+        pickupLat: lat,
+        pickupLng: lng,
+        pickupAddress: "User's Live Location", // Can be replaced with reverse-geocoding later
+      },
+    });
+
+    return newTrip;
+  }
 }
