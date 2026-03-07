@@ -1,9 +1,51 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class TripsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async handlePatientArrival(tripId: string) {
+    try {
+      const updatedTrip = await this.prisma.trip.update({
+        where: { id: tripId },
+        data: {
+          status: 'ON_BOARD',
+          pickedUpAt: new Date(),
+        },
+      });
+      return {
+        success: true,
+        message: 'Handover complete. Trip ended and driver is now available.',
+        updatedTrip: updatedTrip,
+      };
+    } catch (e) {
+      return { success: false, message: 'arrival failed. check the logs.' };
+    }
+  }
+
+  async handleHospitalArrival(tripId: string) {
+    try {
+      const updatedTrip = await this.prisma.trip.update({
+        where: { id: tripId },
+        data: {
+          status: 'ARRIVED',
+          pickedUpAt: new Date(),
+        },
+      });
+      return {
+        success: true,
+        message: 'Handover complete. Trip ended and driver is now available.',
+        updatedTrip: updatedTrip,
+      };
+    } catch (e) {
+      return { success: false, message: 'arrival failed. check the logs.' };
+    }
+  }
 
   async completeHandover(tripId: string) {
     try {
@@ -11,20 +53,17 @@ export class TripsService {
       const trip = await this.prisma.trip.findUnique({
         where: { id: tripId },
       });
-
       if (!trip) {
         throw new NotFoundException(`Trip with ID ${tripId} not found`);
       }
-
       // 2. Execute updates cleanly inside a Prisma Transaction
       await this.prisma.$transaction(async (tx) => {
-        
         // A. Mark the trip as completed and log the timestamp
         await tx.trip.update({
           where: { id: tripId },
-          data: { 
-            status: 'COMPLETED', 
-            completedAt: new Date() 
+          data: {
+            status: 'COMPLETED',
+            completedAt: new Date(),
           },
         });
 
@@ -32,8 +71,8 @@ export class TripsService {
         if (trip.driverId) {
           await tx.driverProfile.update({
             where: { id: trip.driverId },
-            data: { 
-              status: 'AVAILABLE' 
+            data: {
+              status: 'AVAILABLE',
             },
           });
         }
@@ -43,10 +82,9 @@ export class TripsService {
         success: true,
         message: 'Handover complete. Trip ended and driver is now available.',
       };
-      
     } catch (error) {
       console.error('Failed to complete handover:', error);
-      
+
       // Pass through our 404, otherwise throw a generic 500
       if (error instanceof NotFoundException) {
         throw error;
