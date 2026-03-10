@@ -2,7 +2,7 @@ import { Controller, Delete, Post } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service'; 
 import * as argon from 'argon2';
 
-@Controller('dev') // Using a temp /dev route
+@Controller('dev') 
 export class DevController {
     constructor(private prisma: PrismaService) {}
 
@@ -10,7 +10,7 @@ export class DevController {
     async seedDrivers() {
         const dummyPassword = await argon.hash('password123');
 
-        // Driver 1: Rajesh (Exactly at your Thane coords)
+        // Driver 1: Rajesh (Thane - Near)
         const driver1 = await this.prisma.user.create({
             data: {
                 email: 'rajesh@snapbulance.com',
@@ -23,7 +23,7 @@ export class DevController {
                         licenseNumber: 'MH04-DL-1111',
                         yearsExperience: 5,
                         status: 'AVAILABLE',
-                        currentLat: 19.1973, // Your exact PC location
+                        currentLat: 19.1973, // Thane 
                         currentLng: 72.9644,
                         ambulance: {
                             create: {
@@ -38,7 +38,7 @@ export class DevController {
             }
         });
 
-        // Driver 2: Suresh (Offset slightly by ~500 meters)
+        // Driver 2: Suresh (Pune - Far)
         const driver2 = await this.prisma.user.create({
             data: {
                 email: 'suresh@snapbulance.com',
@@ -51,8 +51,8 @@ export class DevController {
                         licenseNumber: 'MH04-DL-2222',
                         yearsExperience: 8,
                         status: 'AVAILABLE',
-                        currentLat: 19.2010, // Offset slightly
-                        currentLng: 72.9680,
+                        currentLat: 18.5204, // Pune
+                        currentLng: 73.8567,
                         ambulance: {
                             create: {
                                 plateNumber: 'MH-04-AB-2222',
@@ -71,20 +71,21 @@ export class DevController {
 
     @Delete('reset-system')
     async resetSystem() {
-        // 1. Delete all trips (and cascading medical reports)
-        const deletedTrips = await this.prisma.trip.deleteMany({});
+        // 1. Clean up dependencies first
+        await this.prisma.chatMessage.deleteMany({});
+        await this.prisma.medicalReport.deleteMany({});
+        await this.prisma.trip.deleteMany({});
         
-        // 2. Force all drivers offline and clear their current trip assignments
-        const resetDrivers = await this.prisma.driverProfile.updateMany({
-            data: {
-                status: 'OFFLINE',
-            }
+        // 2. Wipe existing fleet
+        await this.prisma.ambulance.deleteMany({});
+        await this.prisma.driverProfile.deleteMany({});
+        await this.prisma.user.deleteMany({
+            where: { role: 'DRIVER' }
         });
 
-        return { 
-            message: 'System reset for testing.', 
-            deletedTrips: deletedTrips.count,
-            resetDrivers: resetDrivers.count 
-        };
+        // 3. Automatically re-seed the fresh drivers
+        await this.seedDrivers();
+
+        return { message: 'System completely reset and drivers re-seeded for testing.' };
     }
 }

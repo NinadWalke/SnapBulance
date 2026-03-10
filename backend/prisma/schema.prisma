@@ -198,7 +198,7 @@ model Trip {
 model MedicalReport {
   id              String        @id @default(uuid())
   tripId          String        @unique
-  trip            Trip          @relation(fields: [tripId], references: [id])
+  trip            Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
   
   paramedicNotes  String?       
   aiSummary       String?       

@@ -33,4 +33,3 @@
 - Live incoming feed: as soon as phase 3 locks, the backend emits an alert to the room
 
 - Triage UI: A dashboard populates a card showing the incoming ambulance's live ETA and the patient's basic info
-

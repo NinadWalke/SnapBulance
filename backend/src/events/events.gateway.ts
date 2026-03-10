@@ -129,4 +129,16 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       message: payload.message,
     });
   }
+  // Add this inside EventsGateway class
+  @SubscribeMessage('driverLocationUpdate')
+  handleDriverLocationUpdate(
+    client: Socket,
+    payload: { tripId: string; lat: number; lng: number },
+  ) {
+    // Broadcast the exact coordinates to the patient waiting in the room
+    this.server.to(payload.tripId).emit('driverLocationUpdated', {
+      lat: payload.lat,
+      lng: payload.lng,
+    });
+  }
 }

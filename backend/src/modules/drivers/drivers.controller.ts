@@ -16,11 +16,12 @@ export class DriversController {
     }
 
     // NEW: Endpoint to fetch pending requests
-    @Get('pending-requests')
-    async getPendingRequests() {
-        return this.driversService.getPendingTrips();
+    @Get('pending-requests')  
+    async getPendingRequests(@GetUser() user: User) {
+        return this.driversService.getPendingTrips(user.id);
     }
-    // Endpoint to get the driver's current active trip
+    // Endpoint to get the driver's current active tri
+    // p
     @UseGuards(JwtGuard)
     @Get('active-trip')
     async getActiveTrip(@GetUser() user: User) {
