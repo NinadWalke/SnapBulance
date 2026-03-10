@@ -12,7 +12,6 @@ import LandingPage from './pages/common/LandingPage'
 import LoginPage from './pages/common/LoginPage'
 import RegisterPage from './pages/common/RegisterPage'
 import NotFoundPage from './pages/common/NotFoundPage'
-import UnauthorizedPage from './pages/common/UnauthorizedPage'
 
 // 2. User
 import UserHome from './pages/user/trip/UserHome'
