@@ -13,7 +13,6 @@ const Navbar: React.FC<NavbarProps> = () => {
         navigate('/login', { replace: true });
     };
 
-    // Helper function to render links cleanly based on role
     const renderNavLinks = () => {
         if (!isAuthenticated || !user) {
             return (
@@ -36,8 +35,9 @@ const Navbar: React.FC<NavbarProps> = () => {
             case 'DRIVER':
                 return (
                     <>
-                        {/* Driver sub-pages (Mission, Handover) are usually accessed from the Dashboard UI, not the global nav */}
                         <Link to="/driver/dashboard" style={{ textDecoration: 'none' }}>Driver Dashboard</Link>
+                        {/* Added the new Driver Trips link here */}
+                        <Link to="/driver/trips" style={{ textDecoration: 'none' }}>My Trips</Link>
                     </>
                 );
             case 'HOSPITAL_ADMIN':
@@ -48,23 +48,19 @@ const Navbar: React.FC<NavbarProps> = () => {
                     </>
                 );
             default:
-                return null; // Fallback for CFR or SYS_ADMIN if added later
+                return null; 
         }
     };
 
     return ( 
         <nav style={{ padding: '1rem', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {/* Logo / Brand */}
             <Link to="/" style={{ fontWeight: 'bold', textDecoration: 'none', fontSize: '1.2rem', color: '#e63946' }}>
                 SnapBulance 🚑
             </Link>
 
-            {/* Navigation Links */}
             <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                
                 {renderNavLinks()}
 
-                {/* Always show logout if authenticated, regardless of role */}
                 {isAuthenticated && (
                     <button 
                         onClick={handleLogout}

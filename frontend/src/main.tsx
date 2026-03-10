@@ -21,12 +21,15 @@ import LiveTripTracking from './pages/user/trip/LiveTripTracking'
 import RideHistory from './pages/user/trip/RideHistory'
 import UserProfile from './pages/user/profile/UserProfile'
 import UserEditProfile from './pages/user/profile/UserEditProfile'
+import RideDetail from './pages/user/trip/RideDetail'
 
 // 3. Driver
 import DriverDashboard from './pages/driver/DriverDashboard'
 import ActiveNavigation from './pages/driver/ActiveNavigation'
 import PatientHandover from './pages/driver/PatientHandover'
 import MissionSummary from './pages/driver/MissionSummary'
+import DriverTrips from './pages/driver/DriverTrips'
+import DriverTripDetail from './pages/driver/DriverTripDetail'
 
 // 4. Hospital
 import HospitalDashboard from './pages/hospital/HospitalDashboard'
@@ -34,10 +37,10 @@ import IncomingPatientDetail from './pages/hospital/IncomingPatientDetail'
 import HospitalProfile from './pages/hospital/HospitalProfile'
 
 // --- Helper Components ---
-// You need to create these files in src/components/
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ProtectedRoute from './components/ProtectedRoute'
+import PublicRoute from './components/PublicRoute'
 
 // Zustand
 import { useAuthStore } from './store/useAuthStore'
@@ -61,10 +64,11 @@ const Layout = () => {
       <main className="flex-grow">
         <Routes>
           {/* --- Public Routes --- */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          <Route element={<PublicRoute />}>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+          </Route>
 
           {/* --- Protected USER Routes --- */}
           <Route element={<ProtectedRoute allowedRoles={['USER']} />}>
@@ -72,6 +76,7 @@ const Layout = () => {
             <Route path="/user/searching/:tripId" element={<LookingForDriver />} />
             <Route path="/user/track/:tripId" element={<LiveTripTracking />} />
             <Route path="/user/history" element={<RideHistory />} />
+            <Route path="/user/history/:tripId" element={<RideDetail />} />
             <Route path="/user/profile" element={<UserProfile />} />
             <Route path="/user/profile/edit" element={<UserEditProfile />} />
           </Route>
@@ -79,6 +84,8 @@ const Layout = () => {
           {/* --- Protected DRIVER Routes --- */}
           <Route element={<ProtectedRoute allowedRoles={['DRIVER']} />}>
             <Route path="/driver/dashboard" element={<DriverDashboard />} />
+            <Route path="/driver/trips" element={<DriverTrips />} />
+            <Route path="/driver/trips/:tripId" element={<DriverTripDetail />} />
             <Route path="/driver/mission/:tripId" element={<ActiveNavigation />} />
             <Route path="/driver/handover/:tripId" element={<PatientHandover />} />
             <Route path="/driver/summary/:tripId" element={<MissionSummary />} />
