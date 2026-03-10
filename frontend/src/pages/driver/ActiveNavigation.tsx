@@ -92,12 +92,35 @@ const ActiveNavigation: React.FC<ActiveNavigationProps> = () => {
         setInputText('');
     };
 
-    const handleStatusChange = () => {
-        if (status === 'TO_PICKUP') {
-            setStatus('TO_HOSPITAL');
-            // Optional: Emit socket event to tell user "Ambulance has arrived at your location!"
-        } else {
-            navigate(`/driver/handover/${tripId}`);
+    const handleStatusChange = async () => {
+        try {
+            if (status === 'TO_PICKUP') {
+                // 1. Update Database
+                await api.post(`/trips/${tripId}/arrive-to-patient`);
+                
+                // 2. Alert Patient via Socket
+                socket.emit('updateTripStatus', {
+                    tripId,
+                    status: 'ARRIVED',
+                    message: 'Ambulance has arrived at your location!'
+                });
+                
+                setStatus('TO_HOSPITAL');
+            } else {
+                // 1. Update Database
+                await api.post(`/trips/${tripId}/arrive-at-hospital`);
+                
+                // 2. Alert Patient via Socket
+                socket.emit('updateTripStatus', {
+                    tripId,
+                    status: 'AT_HOSPITAL',
+                    message: 'Arrived at the hospital. Handover in progress.'
+                });
+                
+                navigate(`/driver/handover/${tripId}`);
+            }
+        } catch (error) {
+            console.error("Failed to update trip status", error);
         }
     };
 

@@ -14,17 +14,13 @@ export class TripsService {
       const updatedTrip = await this.prisma.trip.update({
         where: { id: tripId },
         data: {
-          status: 'ON_BOARD',
+          status: 'ARRIVED', 
           pickedUpAt: new Date(),
         },
       });
-      return {
-        success: true,
-        message: 'Handover complete. Trip ended and driver is now available.',
-        updatedTrip: updatedTrip,
-      };
+      return { success: true, updatedTrip };
     } catch (e) {
-      return { success: false, message: 'arrival failed. check the logs.' };
+      return { success: false, message: 'Patient arrival failed.' };
     }
   }
 
@@ -33,17 +29,12 @@ export class TripsService {
       const updatedTrip = await this.prisma.trip.update({
         where: { id: tripId },
         data: {
-          status: 'ARRIVED',
-          pickedUpAt: new Date(),
+          status: 'ON_BOARD',
         },
       });
-      return {
-        success: true,
-        message: 'Handover complete. Trip ended and driver is now available.',
-        updatedTrip: updatedTrip,
-      };
+      return { success: true, updatedTrip };
     } catch (e) {
-      return { success: false, message: 'arrival failed. check the logs.' };
+      return { success: false, message: 'Hospital arrival failed.' };
     }
   }
 

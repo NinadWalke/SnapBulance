@@ -1,17 +1,17 @@
 import { Controller, Post, Param } from '@nestjs/common';
-import { TripsService } from './trips.service'; // Adjust path if needed
+import { TripsService } from './trips.service'; 
 
 @Controller('trips')
 export class TripsController {
   constructor(private readonly tripsService: TripsService) {}
 
-  @Post(':tripdId/arrive-to-patient')
-  async arriveToPatient(@Param('tripId') tripId: string) {
+  @Post(':tripId/arrive-to-patient')
+  async arriveToPatient(@Param('tripId') tripId: string) { 
     return this.tripsService.handlePatientArrival(tripId);
   }
 
   @Post(':tripId/arrive-at-hospital')
-  async arriveAtHospital(@Param('tripdId') tripId: string) {
+  async arriveAtHospital(@Param('tripId') tripId: string) { 
     return this.tripsService.handleHospitalArrival(tripId);
   }
 

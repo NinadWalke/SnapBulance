@@ -117,4 +117,16 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.error('❌ Error during handleAcceptTrip:', error);
     }
   }
+  // 4. Handle Trip Status Updates
+  @SubscribeMessage('updateTripStatus')
+  handleUpdateTripStatus(
+    client: Socket,
+    payload: { tripId: string; status: string; message: string },
+  ) {
+    // Broadcast the new status to the patient waiting in the room
+    this.server.to(payload.tripId).emit('tripStatusChanged', {
+      status: payload.status,
+      message: payload.message,
+    });
+  }
 }
