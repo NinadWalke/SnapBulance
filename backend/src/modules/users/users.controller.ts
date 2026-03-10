@@ -57,4 +57,21 @@ export class UsersController {
             orderBy: { timestamp: 'asc' } // Oldest to newest
         });
     }
+
+    // Endpoint to get all past rides for a user
+    @UseGuards(JwtGuard)
+    @Get('trips/history')
+    async getTripHistory(@GetUser() user: User) {
+        return this.userService.getTripHistory(user.id);
+    }
+
+    // Endpoint to get specific trip details
+    @UseGuards(JwtGuard)
+    @Get('trip/:id')
+    async getTripDetails(
+        @GetUser() user: User, 
+        @Param('id') tripId: string
+    ) {
+        return this.userService.getTripDetails(tripId, user.id);
+    }
 }

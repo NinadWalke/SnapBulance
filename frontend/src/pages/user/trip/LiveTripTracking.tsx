@@ -62,7 +62,7 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
         setStatusMessage(data.message);
 
         if (data.status === "COMPLETED") {
-          navigate('/');
+          navigate(`/user/history/${tripId}`);
         }
       },
     );

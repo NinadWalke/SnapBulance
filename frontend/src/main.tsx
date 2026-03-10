@@ -21,6 +21,7 @@ import LiveTripTracking from './pages/user/trip/LiveTripTracking'
 import RideHistory from './pages/user/trip/RideHistory'
 import UserProfile from './pages/user/profile/UserProfile'
 import UserEditProfile from './pages/user/profile/UserEditProfile'
+import RideDetail from './pages/user/trip/RideDetail'
 
 // 3. Driver
 import DriverDashboard from './pages/driver/DriverDashboard'
@@ -72,6 +73,7 @@ const Layout = () => {
             <Route path="/user/searching/:tripId" element={<LookingForDriver />} />
             <Route path="/user/track/:tripId" element={<LiveTripTracking />} />
             <Route path="/user/history" element={<RideHistory />} />
+            <Route path="/user/history/:tripId" element={<RideDetail />} />
             <Route path="/user/profile" element={<UserProfile />} />
             <Route path="/user/profile/edit" element={<UserEditProfile />} />
           </Route>

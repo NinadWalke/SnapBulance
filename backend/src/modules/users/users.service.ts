@@ -62,4 +62,47 @@ export class UsersService {
 
     return newTrip;
   }
+  // --- Ride History Logic ---
+
+  async getTripHistory(userId: string) {
+    return this.prisma.trip.findMany({
+      where: { passengerId: userId },
+      orderBy: { requestedAt: 'desc' }, // Newest first
+      select: {
+        id: true,
+        requestedAt: true,
+        pickupAddress: true,
+        destAddress: true,
+        status: true,
+        hospital: {
+          select: { name: true }
+        }
+      }
+    });
+  }
+
+  async getTripDetails(tripId: string, userId: string) {
+    const trip = await this.prisma.trip.findFirst({
+      where: { 
+        id: tripId, 
+        passengerId: userId // Ensure users can only see their own trips
+      },
+      include: {
+        driver: {
+          include: {
+            user: { select: { fullName: true, phone: true } },
+            ambulance: true,
+          }
+        },
+        hospital: true,
+        medicalReport: true
+      }
+    });
+
+    if (!trip) {
+      throw new NotFoundException('Trip not found or unauthorized');
+    }
+
+    return trip;
+  }
 }
