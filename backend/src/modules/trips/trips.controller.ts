@@ -1,9 +1,26 @@
-import { Controller, Post, Param } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, UseGuards } from '@nestjs/common';
 import { TripsService } from './trips.service'; 
+import { JwtGuard } from 'src/common/guards'; // Adjust path if needed
+import { GetUser } from 'src/common/decorators'; // Adjust path if needed
+import type { User } from '@prisma/client';
+
+interface HandoverDto {
+  severity: 'LOW' | 'MODERATE' | 'CRITICAL' | 'LIFE_THREATENING';
+  suspectedCondition?: string;
+  vitalsCheck?: any;
+  paramedicNotes?: string;
+}
 
 @Controller('trips')
 export class TripsController {
   constructor(private readonly tripsService: TripsService) {}
+
+  // New endpoint to fetch history for the logged-in driver
+  @UseGuards(JwtGuard)
+  @Get('driver/history')
+  async getDriverTrips(@GetUser() user: User) {
+      return this.tripsService.getDriverTripsHistory(user.id);
+  }
 
   @Post(':tripId/arrive-to-patient')
   async arriveToPatient(@Param('tripId') tripId: string) { 
@@ -16,7 +33,19 @@ export class TripsController {
   }
 
   @Post(':tripId/complete')
-  async completeHandover(@Param('tripId') tripId: string) {
-    return this.tripsService.completeHandover(tripId);
+  async completeHandover(
+    @Param('tripId') tripId: string,
+    @Body() payload: HandoverDto
+  ) {
+    return this.tripsService.completeHandover(tripId, payload);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('driver/trip/:tripId')
+  async getDriverTripDetails(
+    @Param('tripId') tripId: string, 
+    @GetUser() user: User
+  ) {
+      return this.tripsService.getDriverTripDetails(tripId, user.id);
   }
 }

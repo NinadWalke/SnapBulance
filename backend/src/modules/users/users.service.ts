@@ -33,6 +33,9 @@ export class UsersService {
     return this.prisma.user.update({
       where: { id: userId },
       data: {
+        fullName: dto.fullName,
+        email: dto.email,
+        phone: dto.phone,
         bloodType: dto.bloodType,
         allergies: dto.allergies,
         emergencyContact: dto.emergencyContact,
@@ -40,6 +43,7 @@ export class UsersService {
       select: {
         id: true,
         email: true,
+        phone: true,
         fullName: true,
         bloodType: true,
         allergies: true,
