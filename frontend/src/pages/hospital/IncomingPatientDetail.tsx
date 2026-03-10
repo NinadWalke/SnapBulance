@@ -1,58 +1,95 @@
 import * as React from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { api } from '../../utils/api';
+import { socket } from '../../utils/socket';
+import MapComponent from '../../components/MapComponent';
 
 export interface IncomingPatientDetailProps {}
  
 const IncomingPatientDetail: React.FC<IncomingPatientDetailProps> = () => {
     const { tripId } = useParams();
+    const navigate = useNavigate();
+    const [trip, setTrip] = useState<any>(null);
+    const [driverLocation, setDriverLocation] = useState<[number, number] | null>(null);
+
+    useEffect(() => {
+        const fetchTrip = async () => {
+            try {
+                const res = await api.get(`/hospitals/trip/${tripId}`);
+                setTrip(res.data);
+                if (res.data.driver?.currentLat) {
+                    setDriverLocation([res.data.driver.currentLat, res.data.driver.currentLng]);
+                }
+            } catch (err) { 
+                console.error(err); 
+                navigate('/hospital/dashboard');
+            }
+        };
+        fetchTrip();
+    }, [tripId, navigate]);
+
+    // Listen to live telemetry!
+    useEffect(() => {
+        if (!tripId) return;
+        socket.connect();
+        socket.emit("joinTrip", tripId); // Join the same room as the driver and patient
+
+        socket.on("driverLocationUpdated", (data: { lat: number; lng: number }) => {
+            setDriverLocation([data.lat, data.lng]);
+        });
+
+        socket.on("tripStatusChanged", (data: any) => {
+            if (data.status === "COMPLETED") {
+                alert("Patient Handover Complete. Returning to dashboard.");
+                navigate('/hospital/dashboard');
+            }
+        });
+
+        return () => {
+          socket.off("driverLocationUpdated");
+          socket.off("tripStatusChanged");
+        };
+    }, [tripId, navigate]);
+
+    if (!trip) return <div style={{ padding: '2rem' }}>Loading patient data...</div>;
+
+    const hospitalLocation: [number, number] = [trip.destLat, trip.destLng];
+    const mapCenter = driverLocation || hospitalLocation;
 
     return ( 
-        <div style={{ padding: '2rem', display: 'flex', gap: '2rem', height: '80vh' }}>
+        <div style={{ padding: '2rem', display: 'flex', gap: '2rem', height: '80vh', maxWidth: '1200px', margin: '0 auto' }}>
             
-            {/* Left: Patient Data */}
-            <div style={{ flex: 1 }}>
-                <div style={{ background: '#ffebee', padding: '1rem', borderRadius: '8px', border: '1px solid red', marginBottom: '2rem' }}>
-                    <h1 style={{ color: '#c62828', margin: 0 }}>CRITICAL: Cardiac Arrest</h1>
-                    <p><strong>ETA:</strong> 4 Minutes</p>
-                    <p><strong>Ambulance:</strong> MH-04-AB-1234 (ALS)</p>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <button onClick={() => navigate('/hospital/dashboard')} style={{ alignSelf: 'flex-start', background: 'none', border: 'none', color: '#007bff', cursor: 'pointer', padding: 0 }}>&larr; Back to Dashboard</button>
+                
+                <div style={{ background: '#ffebee', padding: '1.5rem', borderRadius: '8px', border: '1px solid red' }}>
+                    <h1 style={{ color: '#c62828', margin: '0 0 0.5rem 0' }}>{trip.medicalReport?.severity}: {trip.medicalReport?.suspectedCondition || 'Emergency'}</h1>
+                    <p style={{ margin: '0 0 0.3rem 0' }}><strong>Patient:</strong> {trip.passenger.fullName} (Blood: {trip.passenger.bloodType || 'Unknown'})</p>
+                    <p style={{ margin: 0 }}><strong>Ambulance:</strong> {trip.driver?.ambulance?.plateNumber} ({trip.driver?.ambulance?.type})</p>
                 </div>
 
-                <h3>🩺 Live Vitals (Streamed)</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
-                    <div style={vitalBoxStyle}>
-                        <small>BP</small>
-                        <h2>140/90</h2>
-                    </div>
-                    <div style={vitalBoxStyle}>
-                        <small>Pulse</small>
-                        <h2>110 bpm</h2>
-                    </div>
-                    <div style={vitalBoxStyle}>
-                        <small>SpO2</small>
-                        <h2>92%</h2>
-                    </div>
+                <div style={{ background: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', border: '1px solid #ddd' }}>
+                    <h3 style={{ marginTop: 0 }}>🩺 Vitals & Notes</h3>
+                    <p><strong>BP:</strong> {trip.medicalReport?.vitalsCheck?.bp || 'Pending'}</p>
+                    <p><strong>Pulse:</strong> {trip.medicalReport?.vitalsCheck?.pulse || 'Pending'}</p>
+                    <hr style={{ margin: '1rem 0', borderColor: '#eee' }} />
+                    <p><strong>Paramedic Notes:</strong> {trip.medicalReport?.paramedicNotes || 'None provided.'}</p>
+                    <p><strong>Allergies:</strong> {trip.passenger.allergies || 'None recorded'}</p>
                 </div>
-
-                <h3>🤖 AI Triage Summary</h3>
-                <p style={{ background: '#f1f1f1', padding: '1rem', borderRadius: '4px' }}>
-                    "Patient male, 55 years old. Complaining of severe chest pain radiating to left arm. Sweating profusely. History of hypertension. Suspected STEMI."
-                </p>
-
-                <button style={{ width: '100%', padding: '1rem', background: 'green', color: 'white', border: 'none', fontSize: '1.2rem', marginTop: '1rem' }}>
-                    ACKNOWLEDGE & PREPARE BED
-                </button>
             </div>
 
-            {/* Right: Live Map */}
-            <div style={{ flex: 1, background: '#ddd', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}>
-                <h3>🗺️ Ambulance Location Map ({tripId})</h3>
+            <div style={{ flex: 1.5, position: 'relative', borderRadius: '8px', overflow: 'hidden', border: '1px solid #ddd' }}>
+                <MapComponent 
+                    center={mapCenter} 
+                    zoom={15} 
+                    markers={[
+                        { position: hospitalLocation, label: `🏥 ${trip.destAddress}` },
+                        ...(driverLocation ? [{ position: driverLocation, label: '🚑 Ambulance (Live)' }] : [])
+                    ]} 
+                />
             </div>
         </div>
      );
 }
-
-const vitalBoxStyle: React.CSSProperties = {
-    background: 'white', border: '1px solid #ccc', padding: '1rem', textAlign: 'center', borderRadius: '8px'
-};
- 
 export default IncomingPatientDetail;

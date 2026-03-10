@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { socket } from '../../utils/socket';
 import { useAuthStore } from '../../store/useAuthStore';
-import MapComponent from '../../components/MapComponent'; // Ensure the path is correct for your structure
+import MapComponent from '../../components/MapComponent';
 import { api } from '../../utils/api';
 
 export interface ActiveNavigationProps {}
@@ -22,101 +22,137 @@ const ActiveNavigation: React.FC<ActiveNavigationProps> = () => {
     
     const [status, setStatus] = useState<'TO_PICKUP' | 'TO_HOSPITAL'>('TO_PICKUP');
     
-    // Map State
-    const [driverLocation, setDriverLocation] = useState<[number, number]>([19.1973, 72.9644]);
-
+    // Map & Routing State
+    const [driverLocation, setDriverLocation] = useState<[number, number]>([19.1973, 72.9644]); // Default fallback
+    const [patientLocation, setPatientLocation] = useState<[number, number] | null>(null);
+    const [routeCoords, setRouteCoords] = useState<[number, number][]>([]);
+const [targetLocation, setTargetLocation] = useState<[number, number] | null>(null);
+    const [targetLabel, setTargetLabel] = useState('📍 Patient');
     // Chat State
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [inputText, setInputText] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // Fetch driver's live location
+    // 1. Fetch Trip Data to get Patient Location
     useEffect(() => {
-        if ('geolocation' in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => setDriverLocation([position.coords.latitude, position.coords.longitude]),
-                (error) => console.error("Error getting driver location:", error),
-                { enableHighAccuracy: true }
-            );
-        }
-    }, []);
+        const fetchTrip = async () => {
+            if (!tripId) return;
+            try {
+                // Ensure your backend returns pickupLat and pickupLng here
+                const response = await api.get(`/trips/driver/trip/${tripId}`);
+                setPatientLocation([response.data.pickupLat, response.data.pickupLng]);
+                
+                // If driver has a saved location, set it
+                if (response.data.driver?.currentLat) {
+                    setDriverLocation([response.data.driver.currentLat, response.data.driver.currentLng]);
+                }
+            } catch (error) {
+                console.error("Error fetching trip details:", error);
+            }
+        };
+        fetchTrip();
+    }, [tripId]);
 
-    // Socket Logic
+    // 2. Fetch Route from OSRM
+    useEffect(() => {
+        const fetchRoute = async () => {
+            if (!patientLocation) return;
+            
+            try {
+                // OSRM requires coordinates in [longitude, latitude] format
+                const url = `https://router.project-osrm.org/route/v1/driving/${driverLocation[1]},${driverLocation[0]};${patientLocation[1]},${patientLocation[0]}?overview=full&geometries=geojson`;
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (data.routes && data.routes.length > 0) {
+                    // Map back to [latitude, longitude] for our map component
+                    const coords = data.routes[0].geometry.coordinates.map((c: any[]) => [c[1], c[0]]);
+                    setRouteCoords(coords);
+                }
+            } catch (error) {
+                console.error("Failed to fetch route", error);
+            }
+        };
+
+        if (routeCoords.length === 0) {
+            fetchRoute();
+        }
+    }, [driverLocation, patientLocation, routeCoords.length]);
+
+    // 3. Telemetry Simulation Engine
+    useEffect(() => {
+        let timer: ReturnType<typeof setInterval>;
+        
+        if (routeCoords.length > 0 && status === 'TO_PICKUP') {
+            let step = 0;
+            
+            timer = setInterval(() => {
+                if (step < routeCoords.length) {
+                    const newLocation = routeCoords[step];
+                    setDriverLocation(newLocation); // Move on local map
+                    
+                    // Fire socket event to move it on patient's map
+                    socket.emit('driverLocationUpdate', {
+                        tripId,
+                        lat: newLocation[0],
+                        lng: newLocation[1]
+                    });
+                    
+                    step++;
+                } else {
+                    clearInterval(timer); // Reached destination
+                }
+            }, 1000); // Ambulance moves every 1 second for testing
+        }
+
+        return () => clearInterval(timer);
+    }, [routeCoords, status, tripId]);
+
+    // Socket Setup
     useEffect(() => {
         if (!tripId) return;
-
         socket.connect();
-        
         socket.emit('joinTrip', tripId);
-
-        socket.on('receiveChat', (data: ChatMessage) => {
-            setMessages((prev) => [...prev, data]);
-        });
-
-        return () => {
-            socket.off('receiveChat');
-        };
+        socket.on('receiveChat', (data: ChatMessage) => setMessages((prev) => [...prev, data]));
+        return () => { socket.off('receiveChat'); };
     }, [tripId]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isChatOpen]);
 
-    // Add this right before your socket useEffect
-    useEffect(() => {
-        const fetchChatHistory = async () => {
-            if (!tripId) return;
-            try {
-                // Fetch previous messages from DB
-                const response = await api.get(`/users/trip/${tripId}/chat`);
-                setMessages(response.data);
-            } catch (error) {
-                console.error("Failed to load chat history", error);
-            }
-        };
-        fetchChatHistory();
-    }, [tripId]);
-
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
         if (!inputText.trim() || !user || !tripId) return;
-
-        socket.emit('sendChat', {
-            tripId,
-            senderName: user.fullName,
-            senderId: user.id,
-            message: inputText.trim()
-        });
-
+        socket.emit('sendChat', { tripId, senderName: user.fullName, senderId: user.id, message: inputText.trim() });
         setInputText('');
     };
 
     const handleStatusChange = async () => {
         try {
             if (status === 'TO_PICKUP') {
-                // 1. Update Database
-                await api.post(`/trips/${tripId}/arrive-to-patient`);
+                // 1. Alert Backend. It calculates closest hospital.
+                const res = await api.post(`/trips/${tripId}/arrive-to-patient`);
+                const updatedTrip = res.data.updatedTrip;
                 
-                // 2. Alert Patient via Socket
+                // 2. Set new target to Hospital
+                setTargetLocation([updatedTrip.destLat, updatedTrip.destLng]);
+                setTargetLabel(`🏥 ${updatedTrip.hospital.name}`);
+                setStatus('TO_HOSPITAL');
+                setRouteCoords([]); // Clear route to trigger OSRM recalculation
+                
+                // 3. Alert Patient via Socket with NEW DESTINATION
                 socket.emit('updateTripStatus', {
                     tripId,
                     status: 'ARRIVED',
-                    message: 'Ambulance has arrived at your location!'
+                    message: `Heading to ${updatedTrip.hospital.name}`,
+                    destLat: updatedTrip.destLat,
+                    destLng: updatedTrip.destLng
                 });
-                
-                setStatus('TO_HOSPITAL');
             } else {
-                // 1. Update Database
                 await api.post(`/trips/${tripId}/arrive-at-hospital`);
-                
-                // 2. Alert Patient via Socket
-                socket.emit('updateTripStatus', {
-                    tripId,
-                    status: 'AT_HOSPITAL',
-                    message: 'Arrived at the hospital. Handover in progress.'
-                });
-                
+                socket.emit('updateTripStatus', { tripId, status: 'AT_HOSPITAL', message: 'Arrived at the hospital.' });
                 navigate(`/driver/handover/${tripId}`);
             }
         } catch (error) {
@@ -124,6 +160,11 @@ const ActiveNavigation: React.FC<ActiveNavigationProps> = () => {
         }
     };
 
+    // Construct markers safely
+    // Update markers array for MapComponent
+    const markers = [];
+    markers.push({ position: driverLocation, label: '🚑 You' });
+    if (targetLocation) markers.push({ position: targetLocation, label: targetLabel });
     return ( 
         <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', maxWidth: '600px', margin: '0 auto', border: '1px solid #ddd' }}>
             
@@ -138,11 +179,9 @@ const ActiveNavigation: React.FC<ActiveNavigationProps> = () => {
                 
                 <MapComponent 
                     center={driverLocation} 
-                    zoom={15} 
-                    markers={[{ 
-                        position: driverLocation, 
-                        label: status === 'TO_PICKUP' ? 'Ambulance (You)' : 'Heading to Hospital' 
-                    }]} 
+                    zoom={14} 
+                    markers={markers} 
+                    polyline={routeCoords} 
                 />
             </div>
 
