@@ -20,9 +20,14 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
   const { tripId } = useParams();
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [driverLocation, setDriverLocation] = useState<[number, number] | null>(null);
+
+  const [targetLocation, setTargetLocation] = useState<[number, number] | null>(
+    null,
+  );
+  const [targetLabel, setTargetLabel] = useState("📍 You");
+  const [driverLocation, setDriverLocation] = useState<[number, number] | null>(
+    null,
+  );
   const [routeCoords, setRouteCoords] = useState<[number, number][]>([]);
   const [statusMessage, setStatusMessage] = useState("Ambulance is En Route");
 
@@ -35,16 +40,19 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
   // 1. Fetch initial trip data
   useEffect(() => {
     const fetchInitialData = async () => {
-        try {
-            const response = await api.get(`/users/trip/${tripId}`);
-            setUserLocation([response.data.pickupLat, response.data.pickupLng]);
-            
-            if (response.data.driver && response.data.driver.currentLat) {
-                setDriverLocation([response.data.driver.currentLat, response.data.driver.currentLng]);
-            }
-        } catch (error) {
-            console.error("Failed to fetch initial trip data", error);
+      try {
+        const response = await api.get(`/users/trip/${tripId}`);
+        setTargetLocation([response.data.pickupLat, response.data.pickupLng]);
+
+        if (response.data.driver && response.data.driver.currentLat) {
+          setDriverLocation([
+            response.data.driver.currentLat,
+            response.data.driver.currentLng,
+          ]);
         }
+      } catch (error) {
+        console.error("Failed to fetch initial trip data", error);
+      }
     };
     fetchInitialData();
   }, [tripId]);
@@ -52,44 +60,49 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
   // 2. Fetch OSRM Route to display to patient
   useEffect(() => {
     const fetchRoute = async () => {
-        if (!userLocation || !driverLocation || routeCoords.length > 0) return;
-        try {
-            const url = `https://router.project-osrm.org/route/v1/driving/${driverLocation[1]},${driverLocation[0]};${userLocation[1]},${userLocation[0]}?overview=full&geometries=geojson`;
-            const res = await fetch(url);
-            const data = await res.json();
-            if (data.routes && data.routes.length > 0) {
-                const coords = data.routes[0].geometry.coordinates.map((c: any[]) => [c[1], c[0]]);
-                setRouteCoords(coords);
-            }
-        } catch (error) {
-            console.error("Failed to fetch route", error);
+      if (!targetLocation || !driverLocation || routeCoords.length > 0) return;
+      try {
+        const url = `https://router.project-osrm.org/route/v1/driving/${driverLocation[1]},${driverLocation[0]};${targetLocation[1]},${targetLocation[0]}?overview=full&geometries=geojson`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.routes && data.routes.length > 0) {
+          const coords = data.routes[0].geometry.coordinates.map((c: any[]) => [
+            c[1],
+            c[0],
+          ]);
+          setRouteCoords(coords);
         }
+      } catch (error) {
+        console.error("Failed to fetch route", error);
+      }
     };
     fetchRoute();
-  }, [driverLocation, userLocation, routeCoords.length]);
+  }, [driverLocation, targetLocation, routeCoords.length]);
 
   // Socket Logic
   useEffect(() => {
     if (!tripId) return;
-
     socket.connect();
     socket.emit("joinTrip", tripId);
 
-    socket.on("receiveChat", (data: ChatMessage) => setMessages((prev) => [...prev, data]));
-    
-    socket.on("tripStatusChanged", (data: { status: string; message: string }) => {
-        setStatusMessage(data.message);
-        if (data.status === "COMPLETED") navigate(`/user/history/${tripId}`);
+    socket.on("tripStatusChanged", (data: any) => {
+      setStatusMessage(data.message);
+      if (data.status === "COMPLETED") navigate(`/user/history/${tripId}`);
+
+      // NEW: If driver arrives at patient, switch the map's target to the hospital!
+      if (data.status === "ARRIVED" && data.destLat && data.destLng) {
+        setTargetLocation([data.destLat, data.destLng]);
+        setTargetLabel("🏥 Hospital Destination");
+        setRouteCoords([]); // Trigger OSRM recalculation
+      }
     });
 
-    // NEW: Listen for ambulance movement
     socket.on("driverLocationUpdated", (data: { lat: number; lng: number }) => {
-        setDriverLocation([data.lat, data.lng]);
+      setDriverLocation([data.lat, data.lng]);
     });
 
     return () => {
-      socket.off("receiveChat");
-      socket.off("tripStatusChanged"); 
+      socket.off("tripStatusChanged");
       socket.off("driverLocationUpdated");
     };
   }, [tripId, navigate]);
@@ -114,11 +127,14 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
   };
 
   const markers = [];
-  if (userLocation) markers.push({ position: userLocation, label: "📍 You" });
-  if (driverLocation) markers.push({ position: driverLocation, label: "🚑 Ambulance" });
+  if (targetLocation)
+    markers.push({ position: targetLocation, label: targetLabel });
+  if (driverLocation)
+    markers.push({ position: driverLocation, label: "🚑 Ambulance" });
 
   // Fix for the TypeScript union error: guarantee a strict [number, number] tuple
-  const mapCenter: [number, number] = driverLocation || userLocation || [19.1973, 72.9644];
+  const mapCenter: [number, number] = driverLocation ||
+    targetLocation || [19.1973, 72.9644];
 
   return (
     <div
@@ -156,8 +172,8 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
         >
           Trip ID: {tripId}
         </div>
-        
-        {userLocation ? (
+
+        {targetLocation ? (
           <MapComponent
             center={mapCenter}
             zoom={14}
@@ -165,10 +181,12 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
             polyline={routeCoords}
           />
         ) : (
-          <div style={{ padding: '2rem', textAlign: 'center' }}>Loading Map...</div>
+          <div style={{ padding: "2rem", textAlign: "center" }}>
+            Loading Map...
+          </div>
         )}
-      </div> {/* <-- ADDED THIS MISSING CLOSING DIV TO FIX YOUR SCOPE ERROR */}
-
+      </div>{" "}
+      {/* <-- ADDED THIS MISSING CLOSING DIV TO FIX YOUR SCOPE ERROR */}
       {/* Chat Area (Overlays Map when open) */}
       {isChatOpen && (
         <div
@@ -216,7 +234,13 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
             }}
           >
             {messages.length === 0 ? (
-              <p style={{ textAlign: "center", color: "#888", marginTop: "2rem" }}>
+              <p
+                style={{
+                  textAlign: "center",
+                  color: "#888",
+                  marginTop: "2rem",
+                }}
+              >
                 No messages yet. Say hello!
               </p>
             ) : (
@@ -299,7 +323,6 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
           </form>
         </div>
       )}
-
       {/* Bottom Sheet / Driver Info */}
       <div
         style={{

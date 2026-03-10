@@ -119,15 +119,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
   // 4. Handle Trip Status Updates
   @SubscribeMessage('updateTripStatus')
-  handleUpdateTripStatus(
-    client: Socket,
-    payload: { tripId: string; status: string; message: string },
-  ) {
+  handleUpdateTripStatus(client: Socket, payload: any) {
     // Broadcast the new status to the patient waiting in the room
-    this.server.to(payload.tripId).emit('tripStatusChanged', {
-      status: payload.status,
-      message: payload.message,
-    });
+    this.server.to(payload.tripId).emit('tripStatusChanged', payload);
   }
   // Add this inside EventsGateway class
   @SubscribeMessage('driverLocationUpdate')

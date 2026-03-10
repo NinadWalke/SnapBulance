@@ -3,7 +3,19 @@ import {
   NotFoundException,
   InternalServerErrorException,
 } from '@nestjs/common';
+import { Hospital } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+
+// Utility for calculating distances
+function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371; 
+  const dLat = deg2rad(lat2 - lat1);
+  const dLon = deg2rad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+function deg2rad(deg: number) { return deg * (Math.PI / 180); }
 
 @Injectable()
 export class TripsService {
@@ -42,15 +54,48 @@ export class TripsService {
 
   async handlePatientArrival(tripId: string) {
     try {
+      const trip = await this.prisma.trip.findUnique({ where: { id: tripId } });
+      if (!trip) throw new NotFoundException('Trip not found');
+
+      // 1. Fetch all hospitals to find the closest one
+      const hospitals = await this.prisma.hospital.findMany();
+      if (hospitals.length === 0) throw new InternalServerErrorException('No hospitals seeded');
+
+      // FIX 1: Explicitly tell TypeScript this can hold a Hospital object OR null
+      let closestHospital: Hospital | null = null;
+      let minDistance = Infinity;
+
+      // 2. Nearest-Neighbor Algorithm
+      for (const h of hospitals) {
+        const dist = getDistanceFromLatLonInKm(trip.pickupLat, trip.pickupLng, h.latitude, h.longitude);
+        if (dist < minDistance) {
+          minDistance = dist;
+          closestHospital = h;
+        }
+      }
+
+      // FIX 2: Check if closestHospital is still null to satisfy TypeScript's strict mode
+      if (!closestHospital) {
+        throw new InternalServerErrorException('Could not determine closest hospital');
+      }
+
+      // 3. Update the trip with the winning hospital coordinates
       const updatedTrip = await this.prisma.trip.update({
         where: { id: tripId },
         data: {
           status: 'ARRIVED', 
           pickedUpAt: new Date(),
+          hospitalId: closestHospital.id,
+          destAddress: closestHospital.name,
+          destLat: closestHospital.latitude,
+          destLng: closestHospital.longitude,
         },
+        include: { hospital: true } // Return hospital details
       });
+
       return { success: true, updatedTrip };
     } catch (e) {
+      console.error(e);
       return { success: false, message: 'Patient arrival failed.' };
     }
   }

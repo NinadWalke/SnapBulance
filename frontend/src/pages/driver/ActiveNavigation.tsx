@@ -26,7 +26,8 @@ const ActiveNavigation: React.FC<ActiveNavigationProps> = () => {
     const [driverLocation, setDriverLocation] = useState<[number, number]>([19.1973, 72.9644]); // Default fallback
     const [patientLocation, setPatientLocation] = useState<[number, number] | null>(null);
     const [routeCoords, setRouteCoords] = useState<[number, number][]>([]);
-
+const [targetLocation, setTargetLocation] = useState<[number, number] | null>(null);
+    const [targetLabel, setTargetLabel] = useState('📍 Patient');
     // Chat State
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -131,13 +132,27 @@ const ActiveNavigation: React.FC<ActiveNavigationProps> = () => {
     const handleStatusChange = async () => {
         try {
             if (status === 'TO_PICKUP') {
-                await api.post(`/trips/${tripId}/arrive-to-patient`);
-                socket.emit('updateTripStatus', { tripId, status: 'ARRIVED', message: 'Ambulance has arrived at your location!' });
+                // 1. Alert Backend. It calculates closest hospital.
+                const res = await api.post(`/trips/${tripId}/arrive-to-patient`);
+                const updatedTrip = res.data.updatedTrip;
+                
+                // 2. Set new target to Hospital
+                setTargetLocation([updatedTrip.destLat, updatedTrip.destLng]);
+                setTargetLabel(`🏥 ${updatedTrip.hospital.name}`);
                 setStatus('TO_HOSPITAL');
-                setRouteCoords([]); // Clear route to prep for hospital routing
+                setRouteCoords([]); // Clear route to trigger OSRM recalculation
+                
+                // 3. Alert Patient via Socket with NEW DESTINATION
+                socket.emit('updateTripStatus', {
+                    tripId,
+                    status: 'ARRIVED',
+                    message: `Heading to ${updatedTrip.hospital.name}`,
+                    destLat: updatedTrip.destLat,
+                    destLng: updatedTrip.destLng
+                });
             } else {
                 await api.post(`/trips/${tripId}/arrive-at-hospital`);
-                socket.emit('updateTripStatus', { tripId, status: 'AT_HOSPITAL', message: 'Arrived at the hospital. Handover in progress.' });
+                socket.emit('updateTripStatus', { tripId, status: 'AT_HOSPITAL', message: 'Arrived at the hospital.' });
                 navigate(`/driver/handover/${tripId}`);
             }
         } catch (error) {
@@ -146,9 +161,10 @@ const ActiveNavigation: React.FC<ActiveNavigationProps> = () => {
     };
 
     // Construct markers safely
+    // Update markers array for MapComponent
     const markers = [];
     markers.push({ position: driverLocation, label: '🚑 You' });
-    if (patientLocation) markers.push({ position: patientLocation, label: '📍 Patient' });
+    if (targetLocation) markers.push({ position: targetLocation, label: targetLabel });
     return ( 
         <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', maxWidth: '600px', margin: '0 auto', border: '1px solid #ddd' }}>
             
