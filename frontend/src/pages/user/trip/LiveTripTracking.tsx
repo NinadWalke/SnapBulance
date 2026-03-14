@@ -36,6 +36,7 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [etaMins, setEtaMins] = useState<number | null>(null);
 
   // 1. Fetch initial trip data
   useEffect(() => {
@@ -59,24 +60,33 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
 
   // 2. Fetch OSRM Route to display to patient
   useEffect(() => {
-    const fetchRoute = async () => {
+    const fetchOptimizedRoute = async () => {
       if (!targetLocation || !driverLocation || routeCoords.length > 0) return;
       try {
-        const url = `https://router.project-osrm.org/route/v1/driving/${driverLocation[1]},${driverLocation[0]};${targetLocation[1]},${targetLocation[0]}?overview=full&geometries=geojson`;
+        const url = `https://router.project-osrm.org/route/v1/driving/${driverLocation[1]},${driverLocation[0]};${targetLocation[1]},${targetLocation[0]}?overview=full&geometries=geojson&alternatives=true`;
         const res = await fetch(url);
         const data = await res.json();
+
         if (data.routes && data.routes.length > 0) {
-          const coords = data.routes[0].geometry.coordinates.map((c: any[]) => [
+          // Sort for fastest route
+          const fastestRoute = data.routes.sort(
+            (a: any, b: any) => a.duration - b.duration,
+          )[0];
+
+          const coords = fastestRoute.geometry.coordinates.map((c: any[]) => [
             c[1],
             c[0],
           ]);
           setRouteCoords(coords);
+
+          // Calculate precise ETA
+          setEtaMins(Math.ceil(fastestRoute.duration / 60));
         }
       } catch (error) {
         console.error("Failed to fetch route", error);
       }
     };
-    fetchRoute();
+    fetchOptimizedRoute();
   }, [driverLocation, targetLocation, routeCoords.length]);
 
   // Socket Logic
@@ -100,11 +110,13 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
     socket.on("driverLocationUpdated", (data: { lat: number; lng: number }) => {
       setDriverLocation([data.lat, data.lng]);
     });
-    
-    socket.on('receiveChat', (data: ChatMessage) => setMessages((prev) => [...prev, data]));
 
-    socket.on("cfrAlert", (data: { message: string, cfrName: string }) => {
-        alert(`🚨 CFR ALERT 🚨\n\n${data.message}`);
+    socket.on("receiveChat", (data: ChatMessage) =>
+      setMessages((prev) => [...prev, data]),
+    );
+
+    socket.on("cfrAlert", (data: { message: string; cfrName: string }) => {
+      alert(`🚨 CFR ALERT 🚨\n\n${data.message}`);
     });
 
     return () => {
@@ -357,6 +369,18 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
             <p style={{ margin: 0, color: "#2e7d32", fontWeight: "bold" }}>
               {statusMessage}
             </p>
+            {etaMins !== null && (
+              <p
+                style={{
+                  margin: "0.5rem 0 0 0",
+                  color: "#d32f2f",
+                  fontWeight: "bold",
+                  fontSize: "0.9rem",
+                }}
+              >
+                ⚡ Arriving in ~{etaMins} min{etaMins !== 1 ? "s" : ""}
+              </p>
+            )}
           </div>
           <div style={{ textAlign: "right" }}>
             <h3
