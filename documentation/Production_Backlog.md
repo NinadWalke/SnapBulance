@@ -1,11 +1,5 @@
 # Production Backlog
 
-- The entire optimization and security part is listed in this file.
-
-## Protection
-
-- All routes are needed to be protected on the basis of roles. Backend is currently possible to hit by any route.
-
 ## Documentation
 
 1. How we tracked the location [OSRM API]
@@ -13,7 +7,3 @@
 3. How we installed filters and rate-limiter
 4. How we using Redis
 5. How we'll be using Docker and K8s to scale [from scratch]
-
-## Concepts
-
-4.Interceptors -> Caching
