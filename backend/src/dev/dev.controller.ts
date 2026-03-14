@@ -114,6 +114,22 @@ export class DevController {
         },
       },
     });
+    // 4. Seed a Community First Responder (CFR)
+    await this.prisma.user.create({
+      data: {
+        email: 'mohit@snapbulance.com',
+        phone: '3333300000',
+        fullName: 'Mohit Kumar',
+        passwordHash: dummyPassword,
+        role: 'CFR',
+        cfrProfile: {
+          create: {
+            certificationId: 'CPR-999888',
+            isVerified: true
+          }
+        }
+      }
+    });
 
     return { message: 'System seeded successfully!', hospitals: 2, drivers: 2 };
   }

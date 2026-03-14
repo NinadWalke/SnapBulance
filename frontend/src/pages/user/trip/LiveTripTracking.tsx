@@ -100,6 +100,12 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
     socket.on("driverLocationUpdated", (data: { lat: number; lng: number }) => {
       setDriverLocation([data.lat, data.lng]);
     });
+    
+    socket.on('receiveChat', (data: ChatMessage) => setMessages((prev) => [...prev, data]));
+
+    socket.on("cfrAlert", (data: { message: string, cfrName: string }) => {
+        alert(`🚨 CFR ALERT 🚨\n\n${data.message}`);
+    });
 
     return () => {
       socket.off("tripStatusChanged");
