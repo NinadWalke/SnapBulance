@@ -15,6 +15,7 @@ import { redisStore } from 'cache-manager-redis-yet';
 // rate-limiting using throttlerModule
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -42,7 +43,8 @@ import { APP_GUARD } from '@nestjs/core';
           }
         })
       })
-    })
+    }),
+    HealthModule
   ],
   controllers: [],
   providers: [

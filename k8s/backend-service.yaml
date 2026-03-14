@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: snapbulance-backend
+  ports:
+    - protocol: TCP
+      port: 3000      # Port the service listens on
+      targetPort: 3000 # Port the container is running on
+  type: ClusterIP      # Internal-only IP (Standard for backends)

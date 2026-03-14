@@ -1,0 +1,61 @@
+# k8s/backend-deployment.yaml
+
+# 1. We are defining a Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: snapbulance-backend
+  labels:
+    app: snapbulance-backend
+spec:
+  # FAANG Rule: Never run just 1 replica in production.
+  # We want 3 copies distributed across the cluster for high availability.
+  replicas: 3
+
+  # The selector tells the Deployment which Pods it owns
+  selector:
+    matchLabels:
+      app: snapbulance-backend
+
+  # 2. The Pod Template (What the Deployment actually spins up)
+  template:
+    metadata:
+      labels:
+        app: snapbulance-backend
+    spec:
+      containers:
+        - name: backend
+          image: snapbulance-backend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
+
+          # --- STEP 3 GOES HERE ---
+          envFrom:
+            - configMapRef:
+                name: backend-config
+            - secretRef:
+                name: backend-secrets
+          # -------------------------
+
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+          livenessProbe:
+            httpGet:
+              path: /health # Matches your test
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+
+          readinessProbe:
+            httpGet:
+              path: /health # Updated to match your test
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
