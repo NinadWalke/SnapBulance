@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import  {ConfigService} from '@nestjs/config';
+import { AllExceptionsFilter } from './common/filters/http-exception.filter'; // <-- Import it
 
 // cookie parsing
 import cookieParser from 'cookie-parser';
@@ -28,6 +29,9 @@ async function bootstrap() {
 
   // use cookie parser
   app.use(cookieParser());
+  
+  // Apply the global exception filter
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   await app.listen(process.env.PORT ?? 3000);
 }

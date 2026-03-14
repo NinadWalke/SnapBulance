@@ -11,6 +11,10 @@ import { EventsModule } from './events/events.module';
 import { DevModule } from './dev/dev.module';
 import { CfrModule } from './modules/cfr/cfr.module';
 
+// rate-limiting using throttlerModule
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -24,8 +28,17 @@ import { CfrModule } from './modules/cfr/cfr.module';
     EventsModule,
     DevModule,
     CfrModule,
+    ThrottlerModule.forRoot([{
+      ttl: 60000, // 60 seconds 
+      limit: 100  // 100 req per 60 seconnds
+    }]),
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard
+    }
+  ],
 })
 export class AppModule {}
