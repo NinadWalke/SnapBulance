@@ -22,6 +22,17 @@ NODE_ENV=development
 # Production: Use a managed PostgreSQL URL (e.g., Supabase, Neon, AWS RDS, Render)
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/snapbulance?schema=public
 
+# Redis Cache Engine
+# The hostname of your Redis instance.
+# Local (Bare Metal without Docker): localhost
+# Local (Docker Compose): redis (Docker's internal DNS resolves this to the container)
+# Production: A managed cloud endpoint (e.g., my-redis-cluster.xyz.us-east-1.amazonaws.com)
+REDIS_HOST=localhost
+
+# Redis Port (Optional if you want to make it dynamic later)
+# Default is 6379. Cloud providers may issue a different port.
+REDIS_PORT=6379
+
 # Authentication
 # The secret key used to sign JSON Web Tokens.
 # Local: Can be any string.

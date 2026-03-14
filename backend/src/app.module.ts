@@ -6,7 +6,6 @@ import { UsersModule } from './modules/users/users.module';
 import { DriversModule } from './modules/drivers/drivers.module';
 import { HospitalsModule } from './modules/hospitals/hospitals.module';
 import { TripsModule } from './modules/trips/trips.module';
-import { ReportsModule } from './modules/reports/reports.module';
 import { EventsModule } from './events/events.module';
 import { DevModule } from './dev/dev.module';
 import { CfrModule } from './modules/cfr/cfr.module';
@@ -16,6 +15,7 @@ import { redisStore } from 'cache-manager-redis-yet';
 // rate-limiting using throttlerModule
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -26,7 +26,6 @@ import { APP_GUARD } from '@nestjs/core';
     DriversModule,
     HospitalsModule,
     TripsModule,
-    ReportsModule,
     EventsModule,
     DevModule,
     CfrModule,
@@ -39,12 +38,13 @@ import { APP_GUARD } from '@nestjs/core';
       useFactory: async () => ({
         store: await redisStore({
           socket: {
-            host: 'localhost',
+            host: process.env.REDIS_HOST || 'localhost',
             port: 6379
           }
         })
       })
-    })
+    }),
+    HealthModule
   ],
   controllers: [],
   providers: [

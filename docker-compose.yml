@@ -1,0 +1,61 @@
+# docker-compose.yml
+services:
+  # 1. THE DATABASE (PostgreSQL)
+  postgres:
+    image: postgres:15-alpine
+    container_name: snapbulance_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: snapbulance
+    ports:
+      - "5433:5432" # Maps your laptop's port 5432 to the container's port 5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data # Persists your data across restarts
+
+  # 2. THE CACHE (Redis)
+  redis:
+    image: redis:alpine
+    container_name: snapbulance_redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redisdata:/data
+
+  # 3. THE BACKEND (NestJS)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: snapbulance_backend
+    restart: unless-stopped
+    depends_on:
+      - postgres # Tells Docker: "Wait for DB to exist before starting me"
+      - redis
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+
+  # 4. THE FRONTEND (React + Vite + Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # These are injected DURING the build step (Stage 1 of the Dockerfile)
+        - VITE_ENVIRONMENT=development
+        - VITE_API_URL_LOCAL=http://localhost:3000/
+    container_name: snapbulance_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:80" # Maps your 5173 to Nginx's internal port 80
+
+# Define the virtual hard drives
+volumes:
+  pgdata:
+  redisdata:
