@@ -2,9 +2,12 @@ import {
   Injectable,
   NotFoundException,
   InternalServerErrorException,
+  Inject,
 } from '@nestjs/common';
 import { Hospital } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import type { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 // Utility for calculating distances
 function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -19,7 +22,7 @@ function deg2rad(deg: number) { return deg * (Math.PI / 180); }
 
 @Injectable()
 export class TripsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, @Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
   // Added method to fetch driver trips
   async getDriverTripsHistory(userId: string) {
@@ -57,15 +60,25 @@ export class TripsService {
       const trip = await this.prisma.trip.findUnique({ where: { id: tripId } });
       if (!trip) throw new NotFoundException('Trip not found');
 
-      // 1. Fetch all hospitals to find the closest one
-      const hospitals = await this.prisma.hospital.findMany();
-      if (hospitals.length === 0) throw new InternalServerErrorException('No hospitals seeded');
+      // REDIS CACHING LOGIC
+      // 1. Check if hospitals are already on the Redis "sticky note"
+      let hospitals = await this.cacheManager.get<Hospital[]>('hospitals_list');
 
-      // FIX 1: Explicitly tell TypeScript this can hold a Hospital object OR null
+      if (!hospitals) {
+        // 2. CACHE MISS: Not in Redis. Fetch from Postgres.
+        console.log('⚠️ CACHE MISS: Fetching hospitals from Postgres...');
+        hospitals = await this.prisma.hospital.findMany();
+        if (hospitals.length === 0) throw new InternalServerErrorException('No hospitals seeded');
+
+        // 3. Save to Redis for 5 minutes (300,000 milliseconds) so the next driver gets it instantly
+        await this.cacheManager.set('hospitals_list', hospitals, 300000);
+      } else {
+        console.log('CACHE HIT: Hospitals loaded from Redis RAM instantly!');
+      }
       let closestHospital: Hospital | null = null;
       let minDistance = Infinity;
 
-      // 2. Nearest-Neighbor Algorithm
+      // 2. Nearest-Neighbor Algorithm (Using the cached hospitals!)
       for (const h of hospitals) {
         const dist = getDistanceFromLatLonInKm(trip.pickupLat, trip.pickupLng, h.latitude, h.longitude);
         if (dist < minDistance) {
@@ -74,7 +87,6 @@ export class TripsService {
         }
       }
 
-      // FIX 2: Check if closestHospital is still null to satisfy TypeScript's strict mode
       if (!closestHospital) {
         throw new InternalServerErrorException('Could not determine closest hospital');
       }
@@ -90,7 +102,7 @@ export class TripsService {
           destLat: closestHospital.latitude,
           destLng: closestHospital.longitude,
         },
-        include: { hospital: true } // Return hospital details
+        include: { hospital: true } 
       });
 
       return { success: true, updatedTrip };
