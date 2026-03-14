@@ -10,6 +10,8 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { EventsModule } from './events/events.module';
 import { DevModule } from './dev/dev.module';
 import { CfrModule } from './modules/cfr/cfr.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-yet';
 
 // rate-limiting using throttlerModule
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
@@ -32,6 +34,17 @@ import { APP_GUARD } from '@nestjs/core';
       ttl: 60000, // 60 seconds 
       limit: 100  // 100 req per 60 seconnds
     }]),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: async () => ({
+        store: await redisStore({
+          socket: {
+            host: 'localhost',
+            port: 6379
+          }
+        })
+      })
+    })
   ],
   controllers: [],
   providers: [

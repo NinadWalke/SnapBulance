@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import  {ConfigService} from '@nestjs/config';
-import { AllExceptionsFilter } from './common/filters/http-exception.filter'; // <-- Import it
+import { AllExceptionsFilter } from './common/filters/http-exception.filter'; 
 
 // cookie parsing
 import cookieParser from 'cookie-parser';
