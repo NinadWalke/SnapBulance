@@ -46,7 +46,7 @@ SnapBulance treats EMS as a **real-time distributed system**. It offers instant 
 - **Live Tracking:** Real-time WebSocket-based tracking for the user (60fps updates) using Redis geospatial data.
 
 ### 2. 🗺️ Route Optimization & Proximity Alerts
-- **"Clear the Way" Alerts:** Users along the ambulance's predicted route receive push notifications to clear the road.
+- **"Calculate the perfect route:** Drivers will get the perfect route calculated towards the nearest hospital by our geocoding modules.
 - **Dynamic Geofencing:** Uses PostGIS to create a moving buffer zone around the ambulance, alerting only relevant users (avoiding notification fatigue).
 
 ### 3. 🏥 Digital Handshake (Hospital Dashboard)
