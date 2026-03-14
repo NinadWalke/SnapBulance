@@ -13,6 +13,22 @@ const Navbar: React.FC<NavbarProps> = () => {
         navigate('/login', { replace: true });
     };
 
+    // NEW: Helper function to determine the "Home" route for the logo
+    const getHomeRoute = () => {
+        if (!isAuthenticated || !user) return '/';
+        switch (user.role) {
+            case 'USER':
+            case 'CFR':
+                return '/user/home';
+            case 'DRIVER':
+                return '/driver/dashboard';
+            case 'HOSPITAL_ADMIN':
+                return '/hospital/dashboard';
+            default:
+                return '/';
+        }
+    };
+
     const renderNavLinks = () => {
         if (!isAuthenticated || !user) {
             return (
@@ -36,7 +52,6 @@ const Navbar: React.FC<NavbarProps> = () => {
                 return (
                     <>
                         <Link to="/driver/dashboard" style={{ textDecoration: 'none' }}>Driver Dashboard</Link>
-                        {/* Added the new Driver Trips link here */}
                         <Link to="/driver/trips" style={{ textDecoration: 'none' }}>My Trips</Link>
                     </>
                 );
@@ -47,6 +62,15 @@ const Navbar: React.FC<NavbarProps> = () => {
                         <Link to="/hospital/profile" style={{ textDecoration: 'none' }}>Hospital Profile</Link>
                     </>
                 );
+            case 'CFR':
+                return (
+                    <>
+                        <Link to="/user/home" style={{ textDecoration: 'none' }}>Request Ambulance</Link>
+                        <Link to="/user/history" style={{ textDecoration: 'none' }}>My Rides</Link>
+                        <Link to="/cfr/dashboard" style={{ textDecoration: 'none', fontWeight: 'bold', color: '#d32f2f' }}>CFR Duty</Link>
+                        <Link to="/user/profile" style={{ textDecoration: 'none' }}>Profile</Link>
+                    </>
+                );
             default:
                 return null; 
         }
@@ -54,7 +78,8 @@ const Navbar: React.FC<NavbarProps> = () => {
 
     return ( 
         <nav style={{ padding: '1rem', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Link to="/" style={{ fontWeight: 'bold', textDecoration: 'none', fontSize: '1.2rem', color: '#e63946' }}>
+            {/* UPDATED: Dynamic Link based on role */}
+            <Link to={getHomeRoute()} style={{ fontWeight: 'bold', textDecoration: 'none', fontSize: '1.2rem', color: '#e63946' }}>
                 SnapBulance 🚑
             </Link>
 

@@ -22,6 +22,9 @@ import UserProfile from './pages/user/profile/UserProfile'
 import UserEditProfile from './pages/user/profile/UserEditProfile'
 import RideDetail from './pages/user/trip/RideDetail'
 
+// 2.1 CFR
+import CfrDashboard from './pages/cfr/CfrDashboard'
+
 // 3. Driver
 import DriverDashboard from './pages/driver/DriverDashboard'
 import ActiveNavigation from './pages/driver/ActiveNavigation'
@@ -70,7 +73,7 @@ const Layout = () => {
           </Route>
 
           {/* --- Protected USER Routes --- */}
-          <Route element={<ProtectedRoute allowedRoles={['USER']} />}>
+          <Route element={<ProtectedRoute allowedRoles={['USER', 'CFR']} />}>
             <Route path="/user/home" element={<UserHome />} />
             <Route path="/user/searching/:tripId" element={<LookingForDriver />} />
             <Route path="/user/track/:tripId" element={<LiveTripTracking />} />
@@ -78,6 +81,10 @@ const Layout = () => {
             <Route path="/user/history/:tripId" element={<RideDetail />} />
             <Route path="/user/profile" element={<UserProfile />} />
             <Route path="/user/profile/edit" element={<UserEditProfile />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['CFR']} />}>
+            <Route path="/cfr/dashboard" element={<CfrDashboard />} />
           </Route>
 
           {/* --- Protected DRIVER Routes --- */}

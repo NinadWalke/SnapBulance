@@ -9,6 +9,7 @@ import { TripsModule } from './modules/trips/trips.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { EventsModule } from './events/events.module';
 import { DevModule } from './dev/dev.module';
+import { CfrModule } from './modules/cfr/cfr.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { DevModule } from './dev/dev.module';
     ReportsModule,
     EventsModule,
     DevModule,
+    CfrModule,
   ],
   controllers: [],
   providers: [],

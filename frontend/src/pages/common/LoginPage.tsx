@@ -37,9 +37,10 @@ const LoginPage: React.FC<LoginPageProps> = () => {
 
       // Otherwise, route them based on their actual role from the backend
       if (user?.role === 'USER') navigate('/user/home', { replace: true });
+      else if (user?.role === 'CFR') navigate('/cfr/dashboard', { replace: true }); 
       else if (user?.role === 'DRIVER') navigate('/driver/dashboard', { replace: true });
       else if (user?.role === 'HOSPITAL_ADMIN') navigate('/hospital/dashboard', { replace: true });
-      else navigate('/', { replace: true }); // Fallback
+      else navigate('/', { replace: true });
 
     } catch (error: any) {
       setErrorMsg(error.response?.data?.message || 'Invalid email or password');

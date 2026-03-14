@@ -12,6 +12,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
   cors: {
     origin: 'http://localhost:5173', // frontend URL here: http://localhost:5173
     credentials: true,
+    
   },
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -133,6 +134,18 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(payload.tripId).emit('driverLocationUpdated', {
       lat: payload.lat,
       lng: payload.lng,
+    });
+  }
+  // 5. CFR Responds to Emergency
+  @SubscribeMessage('cfrResponding')
+  handleCfrResponse(
+    client: Socket,
+    payload: { tripId: string; cfrName: string },
+  ) {
+    // Alert the patient that a CFR is on the way
+    this.server.to(payload.tripId).emit('cfrAlert', {
+      message: `Community First Responder ${payload.cfrName} is nearby and on foot to assist you before the ambulance arrives.`,
+      cfrName: payload.cfrName
     });
   }
 }
