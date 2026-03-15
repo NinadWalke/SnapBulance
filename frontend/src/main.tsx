@@ -57,7 +57,7 @@ const Layout = () => {
   }, [checkAuth]);
   
   // Optional: Hide Navbar on 404 or specific full-screen pages
-  const hideNavbarOn = ['/404', '/unauthorized'];
+  const hideNavbarOn = ['/404'];
   const showNavbar = !hideNavbarOn.includes(location.pathname);
   return (
     <div className="flex flex-col min-h-screen">
