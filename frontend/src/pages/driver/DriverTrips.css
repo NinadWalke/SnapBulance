@@ -1,0 +1,437 @@
+/* =============================================
+   SNAPBULANCE — DriverTrips.css
+   Design Language: Medical-Grade Command Center
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── Page Shell ──────────────────────────────── */
+.sb-dtrips {
+  min-height: calc(100vh - 68px);
+  background: var(--sb-navy-950, #050d1a);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2.5rem 1.5rem 4rem;
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+  position: relative;
+  overflow: hidden;
+}
+
+.sb-dtrips::before {
+  content: '';
+  position: fixed;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(74, 111, 165, 0.05) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Loading ─────────────────────────────────── */
+.sb-dtrips__loading {
+  min-height: calc(100vh - 68px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sb-navy-950, #050d1a);
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+}
+
+.sb-dtrips__loading-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sb-dtrips__loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(74, 111, 165, 0.2);
+  border-top-color: var(--sb-red-500, #e8192d);
+  border-radius: 50%;
+  animation: sb-spin 0.8s linear infinite;
+}
+
+@keyframes sb-spin {
+  to { transform: rotate(360deg); }
+}
+
+.sb-dtrips__loading-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.4);
+}
+
+/* ── Content Card ────────────────────────────── */
+.sb-dtrips__card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Page Header ─────────────────────────────── */
+.sb-dtrips__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.sb-dtrips__header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.sb-dtrips__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(74, 111, 165, 0.9);
+  padding: 0.22rem 0.7rem;
+  background: rgba(74, 111, 165, 0.08);
+  border: 1px solid rgba(74, 111, 165, 0.2);
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.sb-dtrips__title {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--sb-white, #f5f8fc);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.sb-dtrips__subtitle {
+  font-size: 0.85rem;
+  color: rgba(168, 189, 216, 0.4);
+  margin: 0;
+}
+
+/* Mission count badge */
+.sb-dtrips__count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  background: rgba(8, 15, 30, 0.7);
+  border: 1px solid rgba(74, 111, 165, 0.18);
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(168, 189, 216, 0.5);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sb-dtrips__count-badge strong {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--sb-white, #f5f8fc);
+}
+
+/* ── Empty State ─────────────────────────────── */
+.sb-dtrips__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 4rem 2rem;
+  background: rgba(8, 15, 30, 0.5);
+  border: 1px dashed rgba(74, 111, 165, 0.2);
+  border-radius: 16px;
+  text-align: center;
+}
+
+.sb-dtrips__empty-icon {
+  font-size: 2.8rem;
+  opacity: 0.3;
+}
+
+.sb-dtrips__empty-title {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(168, 189, 216, 0.45);
+  margin: 0;
+}
+
+.sb-dtrips__empty-sub {
+  font-size: 0.82rem;
+  color: rgba(168, 189, 216, 0.22);
+  margin: 0;
+  max-width: 260px;
+  line-height: 1.5;
+}
+
+/* ── Mission Feed ────────────────────────────── */
+.sb-dtrips__feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* ── Mission Card ────────────────────────────── */
+.sb-dtrips__mission {
+  background: rgba(8, 15, 30, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(74, 111, 165, 0.14);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: sb-card-in 280ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.sb-dtrips__mission:hover {
+  border-color: rgba(74, 111, 165, 0.28);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.35);
+}
+
+@keyframes sb-card-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Card top row */
+.sb-dtrips__mission-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid rgba(74, 111, 165, 0.08);
+}
+
+.sb-dtrips__mission-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.sb-dtrips__mission-date {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--sb-white, #f5f8fc);
+  letter-spacing: -0.01em;
+}
+
+.sb-dtrips__mission-id {
+  font-size: 0.68rem;
+  font-weight: 500;
+  font-family: 'Courier New', monospace;
+  color: rgba(168, 189, 216, 0.25);
+  letter-spacing: 0.04em;
+}
+
+/* ── Status Badge ────────────────────────────── */
+.sb-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.26rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sb-status-badge__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sb-status-badge--completed {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  color: #4ade80;
+}
+.sb-status-badge--completed .sb-status-badge__dot {
+  background: #4ade80;
+  box-shadow: 0 0 4px rgba(74, 222, 128, 0.6);
+}
+
+.sb-status-badge--cancelled {
+  background: rgba(232, 25, 45, 0.1);
+  border: 1px solid rgba(232, 25, 45, 0.25);
+  color: var(--sb-red-400, #ff2d42);
+}
+.sb-status-badge--cancelled .sb-status-badge__dot {
+  background: var(--sb-red-400, #ff2d42);
+  box-shadow: 0 0 4px rgba(255, 45, 66, 0.6);
+}
+
+.sb-status-badge--in-progress {
+  background: rgba(251, 146, 60, 0.1);
+  border: 1px solid rgba(251, 146, 60, 0.25);
+  color: #fb923c;
+}
+.sb-status-badge--in-progress .sb-status-badge__dot {
+  background: #fb923c;
+  animation: sb-blink 1.6s ease-in-out infinite;
+}
+
+.sb-status-badge--default {
+  background: rgba(74, 111, 165, 0.1);
+  border: 1px solid rgba(74, 111, 165, 0.2);
+  color: rgba(168, 189, 216, 0.65);
+}
+.sb-status-badge--default .sb-status-badge__dot {
+  background: rgba(168, 189, 216, 0.4);
+}
+
+@keyframes sb-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ── Card Body Grid ──────────────────────────── */
+.sb-dtrips__mission-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.sb-dtrips__mission-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.sb-dtrips__col-label {
+  font-size: 0.67rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.32);
+}
+
+.sb-dtrips__col-primary {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--sb-white, #f5f8fc);
+  line-height: 1.4;
+}
+
+.sb-dtrips__col-secondary {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: rgba(168, 189, 216, 0.45);
+  line-height: 1.4;
+}
+
+.sb-dtrips__route-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: rgba(168, 189, 216, 0.55);
+  line-height: 1.4;
+}
+
+.sb-dtrips__route-line + .sb-dtrips__route-line {
+  margin-top: 0.2rem;
+}
+
+.sb-dtrips__route-icon {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  margin-top: 1px;
+}
+
+/* ── Card Footer ─────────────────────────────── */
+.sb-dtrips__mission-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(74, 111, 165, 0.07);
+}
+
+.sb-dtrips__detail-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.1rem;
+  background: transparent;
+  border: 1px solid rgba(74, 111, 165, 0.25);
+  border-radius: 8px;
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: rgba(168, 189, 216, 0.6);
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sb-dtrips__detail-btn:hover {
+  color: var(--sb-white, #f5f8fc);
+  border-color: rgba(74, 111, 165, 0.5);
+  background: rgba(74, 111, 165, 0.09);
+  transform: translateY(-1px);
+}
+
+.sb-dtrips__detail-btn:active {
+  transform: scale(0.965);
+}
+
+.sb-dtrips__detail-btn-arrow {
+  font-style: normal;
+  transition: transform 160ms ease;
+}
+
+.sb-dtrips__detail-btn:hover .sb-dtrips__detail-btn-arrow {
+  transform: translateX(2px);
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 600px) {
+  .sb-dtrips {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .sb-dtrips__title {
+    font-size: 1.55rem;
+  }
+
+  .sb-dtrips__mission-body {
+    grid-template-columns: 1fr;
+  }
+
+  .sb-dtrips__mission {
+    padding: 1.1rem 1.1rem;
+  }
+}

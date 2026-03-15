@@ -1,0 +1,354 @@
+/* =============================================
+   SNAPBULANCE — MissionSummary.css
+   Design Language: Medical-Grade Command Center
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── Page Shell ──────────────────────────────── */
+.sb-summary {
+  min-height: calc(100vh - 68px);
+  background: var(--sb-navy-950, #050d1a);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem 4rem;
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* Green success ambient */
+.sb-summary::before {
+  content: '';
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 600px;
+  background: radial-gradient(ellipse, rgba(34, 197, 94, 0.07) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Loading / Error States ──────────────────── */
+.sb-summary__loading,
+.sb-summary__error {
+  min-height: calc(100vh - 68px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sb-navy-950, #050d1a);
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+}
+
+.sb-summary__loading-inner,
+.sb-summary__error-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sb-summary__loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(74, 111, 165, 0.2);
+  border-top-color: #22c55e;
+  border-radius: 50%;
+  animation: sb-spin 0.8s linear infinite;
+}
+
+@keyframes sb-spin { to { transform: rotate(360deg); } }
+
+.sb-summary__loading-text,
+.sb-summary__error-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.35);
+}
+
+/* ── Content ─────────────────────────────────── */
+.sb-summary__content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── Success Orb ─────────────────────────────── */
+.sb-summary__orb {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  animation: sb-orb-in 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes sb-orb-in {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.sb-summary__orb-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(34, 197, 94, 0.4);
+  animation: sb-ring-expand 2s ease-out infinite;
+}
+
+.sb-summary__orb-ring--1 { width: 60px;  height: 60px;  animation-delay: 0s; }
+.sb-summary__orb-ring--2 { width: 60px;  height: 60px;  animation-delay: 0.6s; }
+.sb-summary__orb-ring--3 { width: 60px;  height: 60px;  animation-delay: 1.2s; }
+
+@keyframes sb-ring-expand {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.sb-summary__orb-core {
+  position: relative;
+  z-index: 2;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #15803d, #22c55e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  box-shadow:
+    0 0 0 3px rgba(34, 197, 94, 0.2),
+    0 0 30px rgba(34, 197, 94, 0.4),
+    0 8px 24px rgba(0,0,0,0.5);
+}
+
+/* ── Header ──────────────────────────────────── */
+.sb-summary__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  animation: sb-fade-up 500ms cubic-bezier(0.4,0,0.2,1) 200ms both;
+}
+
+@keyframes sb-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sb-summary__title {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: var(--sb-white, #f5f8fc);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.sb-summary__subtitle {
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: rgba(168, 189, 216, 0.5);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Patient → Hospital handover line */
+.sb-summary__handover-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: rgba(168, 189, 216, 0.55);
+  margin-top: 0.15rem;
+}
+
+.sb-summary__handover-name {
+  font-weight: 600;
+  color: var(--sb-white, #f5f8fc);
+}
+
+.sb-summary__handover-arrow {
+  font-size: 0.75rem;
+  color: rgba(34, 197, 94, 0.5);
+}
+
+.sb-summary__handover-hospital {
+  font-weight: 600;
+  color: #4ade80;
+}
+
+/* ── Earnings Card ───────────────────────────── */
+.sb-summary__earnings {
+  width: 100%;
+  max-width: 320px;
+  background: rgba(8, 15, 30, 0.7);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  animation: sb-fade-up 500ms cubic-bezier(0.4,0,0.2,1) 350ms both;
+}
+
+/* Subtle green glow inside card */
+.sb-summary__earnings::before {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 80px;
+  background: radial-gradient(ellipse, rgba(34,197,94,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.sb-summary__earnings-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.35);
+}
+
+.sb-summary__earnings-amount {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 3rem;
+  font-weight: 800;
+  color: #4ade80;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-shadow: 0 0 30px rgba(74, 222, 128, 0.3);
+}
+
+.sb-summary__earnings-sub {
+  font-size: 0.72rem;
+  color: rgba(168, 189, 216, 0.25);
+  letter-spacing: 0.04em;
+}
+
+/* ── Trip Stats Row ──────────────────────────── */
+.sb-summary__stats {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2rem;
+  animation: sb-fade-up 500ms cubic-bezier(0.4,0,0.2,1) 450ms both;
+}
+
+.sb-summary__stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  background: rgba(8, 15, 30, 0.6);
+  border: 1px solid rgba(74, 111, 165, 0.15);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(168, 189, 216, 0.45);
+  letter-spacing: 0.02em;
+}
+
+.sb-summary__stat-chip strong {
+  color: rgba(168, 189, 216, 0.75);
+  font-weight: 600;
+}
+
+/* ── Action Buttons ──────────────────────────── */
+.sb-summary__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  width: 100%;
+  animation: sb-fade-up 500ms cubic-bezier(0.4,0,0.2,1) 550ms both;
+}
+
+.sb-summary__actions a {
+  text-decoration: none;
+  display: contents;
+}
+
+.sb-summary__btn {
+  padding: 0.9rem 1.25rem;
+  border-radius: 10px;
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease, border-color 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Details — ghost */
+.sb-summary__btn--details {
+  background: transparent;
+  color: rgba(168, 189, 216, 0.65);
+  border: 1px solid rgba(74, 111, 165, 0.25);
+}
+
+.sb-summary__btn--details:hover {
+  color: var(--sb-white, #f5f8fc);
+  border-color: rgba(74, 111, 165, 0.5);
+  background: rgba(74, 111, 165, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Dashboard — solid green */
+.sb-summary__btn--dashboard {
+  background: linear-gradient(135deg, #15803d, #22c55e);
+  color: white;
+  border: none;
+  box-shadow:
+    0 3px 14px rgba(34, 197, 94, 0.4),
+    0 1px 0 rgba(255,255,255,0.12) inset;
+}
+
+.sb-summary__btn--dashboard:hover {
+  background: linear-gradient(135deg, #166534, #16a34a);
+  box-shadow: 0 6px 22px rgba(34, 197, 94, 0.55);
+  transform: translateY(-1px);
+}
+
+.sb-summary__btn--dashboard:active,
+.sb-summary__btn--details:active {
+  transform: scale(0.975);
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 480px) {
+  .sb-summary { padding: 2rem 1rem 3rem; }
+  .sb-summary__title { font-size: 1.7rem; }
+  .sb-summary__earnings-amount { font-size: 2.4rem; }
+  .sb-summary__actions { grid-template-columns: 1fr; }
+}

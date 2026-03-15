@@ -6,6 +6,8 @@ import { useAuthStore } from "../../store/useAuthStore";
 import MapComponent from "../../components/MapComponent";
 import { api } from "../../utils/api";
 
+import './ActiveNavigation.css'
+
 export interface ActiveNavigationProps {}
 
 interface ChatMessage {
@@ -202,43 +204,24 @@ const ActiveNavigation: React.FC<ActiveNavigationProps> = () => {
   markers.push({ position: driverLocation, label: "🚑 You" });
   if (targetLocation)
     markers.push({ position: targetLocation, label: targetLabel });
+
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        maxWidth: "600px",
-        margin: "0 auto",
-        border: "1px solid #ddd",
-      }}
-    >
-      {/* Map Area */}
+    <div className="sb-nav">
+      {/* ── Map Area ── */}
       <div
-        style={{
-          flex: 2,
-          position: "relative",
-          display: isChatOpen ? "none" : "block",
-        }}
+        className={`sb-nav__map-area${isChatOpen ? " sb-nav__map-area--hidden" : ""}`}
       >
-        <div
-          style={{
-            position: "absolute",
-            top: "10px",
-            left: "10px",
-            zIndex: 1000,
-            background: "white",
-            padding: "0.5rem 1rem",
-            borderRadius: "20px",
-            boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-          }}
-        >
-          <div style={{ fontSize: "0.9rem", fontWeight: "bold" }}>
-            Trip ID: {tripId}
+        {/* HUD Overlays */}
+        <div className="sb-nav__hud" aria-hidden="true">
+          <div className="sb-nav__hud-badge">
+            <span className="sb-nav__hud-live-dot" /># {tripId}
           </div>
-          <div style={{ fontSize: "0.75rem", color: "#666", marginTop: "2px" }}>
-            Route to:{" "}
-            {status === "TO_PICKUP" ? "Patient Location" : "City Hospital"}
+          <div
+            className={`sb-nav__hud-route sb-nav__hud-route--${status === "TO_PICKUP" ? "pickup" : "hospital"}`}
+          >
+            {status === "TO_PICKUP"
+              ? "📍 Route to Patient"
+              : `🏥 Route to ${targetLabel.replace("🏥 ", "")}`}
           </div>
         </div>
 
@@ -250,94 +233,54 @@ const ActiveNavigation: React.FC<ActiveNavigationProps> = () => {
         />
       </div>
 
-      {/* Chat Area (Overlays Map when open) */}
+      {/* ── Chat Panel ── */}
       {isChatOpen && (
-        <div
-          style={{
-            flex: 2,
-            display: "flex",
-            flexDirection: "column",
-            background: "#f9f9f9",
-          }}
-        >
-          <div
-            style={{
-              padding: "1rem",
-              background: "#d32f2f",
-              color: "white",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <h3 style={{ margin: 0 }}>Patient Chat</h3>
+        <div className="sb-nav__chat">
+          {/* Header */}
+          <div className="sb-nav__chat-header">
+            <div className="sb-nav__chat-title-wrap">
+              <span aria-hidden="true">🩺</span>
+              <h3 className="sb-nav__chat-title">Patient Chat</h3>
+              <span className="sb-nav__chat-live">
+                <span className="sb-nav__chat-live-dot" aria-hidden="true" />
+                Live
+              </span>
+            </div>
             <button
+              className="sb-nav__chat-close"
               onClick={() => setIsChatOpen(false)}
-              style={{
-                background: "transparent",
-                color: "white",
-                border: "none",
-                cursor: "pointer",
-                fontSize: "1.2rem",
-              }}
+              aria-label="Close chat"
             >
-              ✖
+              ✕
             </button>
           </div>
 
+          {/* Messages */}
           <div
-            style={{
-              flex: 1,
-              overflowY: "auto",
-              padding: "1rem",
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.5rem",
-            }}
+            className="sb-nav__messages"
+            role="log"
+            aria-live="polite"
+            aria-label="Chat messages"
           >
             {messages.length === 0 ? (
-              <p
-                style={{
-                  textAlign: "center",
-                  color: "#888",
-                  marginTop: "2rem",
-                }}
-              >
-                Contact patient if needed.
-              </p>
+              <div className="sb-nav__chat-empty">
+                <span className="sb-nav__chat-empty-icon" aria-hidden="true">
+                  🩺
+                </span>
+                <span className="sb-nav__chat-empty-text">
+                  Contact patient if needed.
+                </span>
+              </div>
             ) : (
               messages.map((msg, idx) => {
                 const isMe = msg.senderId === user?.id;
                 return (
                   <div
                     key={idx}
-                    style={{
-                      alignSelf: isMe ? "flex-end" : "flex-start",
-                      maxWidth: "80%",
-                    }}
+                    className={`sb-nav__msg ${isMe ? "sb-nav__msg--me" : "sb-nav__msg--them"}`}
                   >
-                    <div
-                      style={{
-                        fontSize: "0.75rem",
-                        color: "#666",
-                        marginBottom: "2px",
-                        textAlign: isMe ? "right" : "left",
-                      }}
-                    >
-                      {msg.senderName}
-                    </div>
-                    <div
-                      style={{
-                        padding: "0.8rem",
-                        borderRadius: "12px",
-                        background: isMe ? "#333" : "#e0e0e0", // Driver messages are dark grey
-                        color: isMe ? "white" : "black",
-                        borderBottomRightRadius: isMe ? "2px" : "12px",
-                        borderBottomLeftRadius: isMe ? "12px" : "2px",
-                      }}
-                    >
-                      {msg.message}
-                    </div>
+                    <span className="sb-nav__msg-sender">{msg.senderName}</span>
+                    <div className="sb-nav__msg-bubble">{msg.message}</div>
                   </div>
                 );
               })
@@ -345,123 +288,103 @@ const ActiveNavigation: React.FC<ActiveNavigationProps> = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          <form
-            onSubmit={handleSendMessage}
-            style={{
-              padding: "1rem",
-              background: "white",
-              borderTop: "1px solid #ddd",
-              display: "flex",
-              gap: "0.5rem",
-            }}
-          >
+          {/* Input */}
+          <form className="sb-nav__chat-form" onSubmit={handleSendMessage}>
             <input
+              className="sb-nav__chat-input"
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Message patient..."
-              style={{
-                flex: 1,
-                padding: "0.8rem",
-                borderRadius: "20px",
-                border: "1px solid #ccc",
-                outline: "none",
-              }}
+              aria-label="Message input"
+              autoComplete="off"
             />
             <button
               type="submit"
-              style={{
-                padding: "0 1.2rem",
-                background: "#d32f2f",
-                color: "white",
-                border: "none",
-                borderRadius: "20px",
-                cursor: "pointer",
-              }}
+              className="sb-nav__chat-send"
+              aria-label="Send message"
             >
-              Send
+              ↑
             </button>
           </form>
         </div>
       )}
 
-      {/* Bottom Sheet / Controls */}
+      {/* ── Bottom Sheet ── */}
       <div
-        style={{
-          flex: 1,
-          padding: "1.5rem",
-          background: "#f8f9fa",
-          borderTop: "2px solid #ddd",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-        }}
+        className={`sb-nav__sheet sb-nav__sheet--${status === "TO_PICKUP" ? "pickup" : "hospital"}`}
       >
-        <div>
-          <h2 style={{ margin: 0, color: "#333" }}>
-            {status === "TO_PICKUP"
-              ? "➡️ Head to Pickup"
-              : "🏥 Rush to Hospital"}
-          </h2>
-          <div style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
+        {/* Status Row */}
+        <div className="sb-nav__status-row">
+          <div className="sb-nav__status-left">
             <span
-              style={{
-                background: "#e8f5e9",
-                color: "#2e7d32",
-                padding: "0.4rem 0.8rem",
-                borderRadius: "4px",
-                fontWeight: "bold",
-              }}
+              className={`sb-nav__phase-label sb-nav__phase-label--${status === "TO_PICKUP" ? "pickup" : "hospital"}`}
             >
-              ⚡ Optimized ETA: {etaMins ? `${etaMins} mins` : "Calculating..."}
+              {status === "TO_PICKUP"
+                ? "➡️ Head to Pickup"
+                : "🏥 Rush to Hospital"}
+            </span>
+
+            <div className="sb-nav__metrics">
+              <span
+                className="sb-nav__metric sb-nav__metric--eta"
+                aria-live="polite"
+              >
+                ⚡ {etaMins ? `${etaMins} min ETA` : "Calculating..."}
+              </span>
+              <span className="sb-nav__metric sb-nav__metric--dist">
+                📏 {routeDistanceKm ? `${routeDistanceKm} km` : "—"}
+              </span>
+            </div>
+          </div>
+
+          {/* Phase progress pills */}
+          <div className="sb-nav__phase-pills" aria-label="Mission phase">
+            <span
+              className={`sb-nav__phase-pill ${status === "TO_PICKUP" ? "sb-nav__phase-pill--active-pickup" : "sb-nav__phase-pill--done"}`}
+            >
+              <span className="sb-nav__pill-dot" aria-hidden="true" />
+              Pickup
             </span>
             <span
-              style={{
-                background: "#f8f9fa",
-                color: "#555",
-                padding: "0.4rem 0.8rem",
-                borderRadius: "4px",
-                border: "1px solid #ddd",
-              }}
+              className={`sb-nav__phase-pill ${status === "TO_HOSPITAL" ? "sb-nav__phase-pill--active-hospital" : "sb-nav__phase-pill--done"}`}
             >
-              📏 {routeDistanceKm ? `${routeDistanceKm} km` : "..."}
+              <span className="sb-nav__pill-dot" aria-hidden="true" />
+              Hospital
             </span>
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+        {/* Action Buttons */}
+        <div className="sb-nav__actions">
           <button
+            className={`sb-nav__btn sb-nav__btn--chat${isChatOpen ? " sb-nav__btn--chat--active" : ""}`}
             onClick={() => setIsChatOpen(!isChatOpen)}
-            style={{
-              flex: 1,
-              padding: "1rem",
-              background: isChatOpen ? "#ddd" : "#fff",
-              border: "2px solid #ccc",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
+            aria-pressed={isChatOpen}
           >
-            {isChatOpen ? "🗺️ View Map" : "💬 Chat Patient"}
+            {isChatOpen ? (
+              <>
+                <span aria-hidden="true">🗺️</span> Map
+              </>
+            ) : (
+              <>
+                <span aria-hidden="true">💬</span> Chat
+              </>
+            )}
           </button>
 
           <button
+            className={`sb-nav__btn sb-nav__btn--status sb-nav__btn--status-${status === "TO_PICKUP" ? "pickup" : "hospital"}`}
             onClick={handleStatusChange}
-            style={{
-              flex: 2,
-              padding: "1rem",
-              background: status === "TO_PICKUP" ? "#007bff" : "#28a745",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              fontSize: "1.1rem",
-              fontWeight: "bold",
-              cursor: "pointer",
-            }}
+            aria-label={
+              status === "TO_PICKUP"
+                ? "Mark arrived at patient"
+                : "Mark arrived at hospital"
+            }
           >
             {status === "TO_PICKUP"
-              ? "ARRIVED AT PATIENT"
-              : "ARRIVED AT HOSPITAL"}
+              ? "✓ Arrived at Patient"
+              : "✓ Arrived at Hospital"}
           </button>
         </div>
       </div>

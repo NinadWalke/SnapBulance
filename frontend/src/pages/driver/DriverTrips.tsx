@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // <-- Added import
 import { api } from '../../utils/api'; 
 
+import './DriverTrips.css'
+
 export interface DriverTripsProps {}
 
 interface DriverTripSummary {
@@ -34,85 +36,127 @@ const DriverTrips: React.FC<DriverTripsProps> = () => {
         fetchTrips();
     }, []);
 
-    if (loading) return <div style={{ padding: '2rem' }}>Loading your trips...</div>;
-
-    return ( 
-        <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-            <h1>My Missions</h1>
-            <p style={{ color: '#666', marginTop: '-10px', marginBottom: '2rem' }}>A history of your ambulance dispatches.</p>
-            
+    const getStatusVariant = (status: string): string => {
+    switch (status) {
+        case 'COMPLETED':  return 'completed';
+        case 'CANCELLED':  return 'cancelled';
+        case 'IN_PROGRESS':
+        case 'SEARCHING':
+        case 'DRIVER_ASSIGNED': return 'in-progress';
+        default: return 'default';
+    }
+};
+ 
+// Loading guard
+if (loading) {
+    return (
+        <div className="sb-dtrips__loading">
+            <div className="sb-dtrips__loading-inner">
+                <div className="sb-dtrips__loading-spinner" aria-hidden="true" />
+                <span className="sb-dtrips__loading-text">Loading Missions</span>
+            </div>
+        </div>
+    );
+}
+ 
+return (
+    <div className="sb-dtrips">
+        <div className="sb-dtrips__card">
+ 
+            {/* ── Page Header ── */}
+            <header className="sb-dtrips__header">
+                <div className="sb-dtrips__header-left">
+                    <span className="sb-dtrips__eyebrow">🚑 Dispatch Log</span>
+                    <h1 className="sb-dtrips__title">My Missions</h1>
+                    <p className="sb-dtrips__subtitle">A history of your ambulance dispatches.</p>
+                </div>
+ 
+                {trips.length > 0 && (
+                    <div className="sb-dtrips__count-badge">
+                        <strong>{trips.length}</strong>
+                        {trips.length === 1 ? 'mission' : 'missions'} completed
+                    </div>
+                )}
+            </header>
+ 
+            {/* ── Empty State ── */}
             {trips.length === 0 ? (
-                <p>No missions recorded yet.</p>
+                <div className="sb-dtrips__empty" role="status">
+                    <span className="sb-dtrips__empty-icon" aria-hidden="true">🛣️</span>
+                    <h2 className="sb-dtrips__empty-title">No missions yet</h2>
+                    <p className="sb-dtrips__empty-sub">
+                        Your completed dispatches will appear here once you accept your first ride.
+                    </p>
+                </div>
             ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="sb-dtrips__feed" role="list" aria-label="Mission history">
                     {trips.map((trip) => {
-                        const dateObj = new Date(trip.requestedAt);
-                        const formattedDate = dateObj.toLocaleDateString() + ' • ' + dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                        const destText = trip.hospital?.name || trip.destAddress || 'Not specified';
-                        const badgeColor = trip.status === 'COMPLETED' ? '#2e7d32' : trip.status === 'CANCELLED' ? '#d32f2f' : '#ed6c02';
-
+                        const dateObj      = new Date(trip.requestedAt);
+                        const formattedDate = dateObj.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+                                            + ' · '
+                                            + dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        const destText     = trip.hospital?.name || trip.destAddress;
+                        const statusVariant = getStatusVariant(trip.status);
+ 
                         return (
-                            <div key={trip.id} style={{ 
-                                border: '1px solid #ddd', 
-                                borderRadius: '8px', 
-                                padding: '1.5rem', 
-                                background: '#fff',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                            }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #eee', paddingBottom: '0.8rem', marginBottom: '0.8rem' }}>
-                                    <div>
-                                        <h3 style={{ margin: 0, color: '#333' }}>{formattedDate}</h3>
-                                        <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#888' }}>Trip ID: {trip.id}</p>
+                            <article key={trip.id} className="sb-dtrips__mission" role="listitem">
+ 
+                                {/* Top: date + status */}
+                                <div className="sb-dtrips__mission-top">
+                                    <div className="sb-dtrips__mission-meta">
+                                        <span className="sb-dtrips__mission-date">{formattedDate}</span>
+                                        <span className="sb-dtrips__mission-id" title="Trip ID"># {trip.id}</span>
                                     </div>
-                                    <span style={{ 
-                                        background: badgeColor, 
-                                        color: 'white', 
-                                        padding: '4px 10px', 
-                                        borderRadius: '12px', 
-                                        fontSize: '0.8rem', 
-                                        fontWeight: 'bold' 
-                                    }}>
-                                        {trip.status.replace('_', ' ')}
+                                    <span className={`sb-status-badge sb-status-badge--${statusVariant}`}>
+                                        <span className="sb-status-badge__dot" aria-hidden="true" />
+                                        {trip.status.replace(/_/g, ' ')}
                                     </span>
                                 </div>
-                                
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                    <div>
-                                        <p style={{ margin: '0 0 4px 0', fontSize: '0.9rem', color: '#666' }}><strong>Patient:</strong></p>
-                                        <p style={{ margin: 0 }}>{trip.passenger.fullName} ({trip.passenger.phone})</p>
+ 
+                                {/* Body: patient + route */}
+                                <div className="sb-dtrips__mission-body">
+                                    {/* Patient */}
+                                    <div className="sb-dtrips__mission-col">
+                                        <span className="sb-dtrips__col-label">Patient</span>
+                                        <span className="sb-dtrips__col-primary">{trip.passenger.fullName}</span>
+                                        <span className="sb-dtrips__col-secondary">{trip.passenger.phone}</span>
                                     </div>
-                                    <div>
-                                        <p style={{ margin: '0 0 4px 0', fontSize: '0.9rem', color: '#666' }}><strong>Route:</strong></p>
-                                        <p style={{ margin: 0 }}>📍 {trip.pickupAddress}</p>
-                                        <p style={{ margin: '4px 0 0 0' }}>🏥 {destText}</p>
+ 
+                                    {/* Route */}
+                                    <div className="sb-dtrips__mission-col">
+                                        <span className="sb-dtrips__col-label">Route</span>
+                                        <div className="sb-dtrips__route-line">
+                                            <span className="sb-dtrips__route-icon" aria-label="Pickup">📍</span>
+                                            <span>{trip.pickupAddress}</span>
+                                        </div>
+                                        <div className="sb-dtrips__route-line">
+                                            <span className="sb-dtrips__route-icon" aria-label="Destination">🏥</span>
+                                            <span>{destText || 'Not specified'}</span>
+                                        </div>
                                     </div>
                                 </div>
-
-                                {/* NEW: View Details Button */}
-                                <div style={{ marginTop: '1.5rem', textAlign: 'right' }}>
-                                    <button 
+ 
+                                {/* Footer: action */}
+                                <div className="sb-dtrips__mission-footer">
+                                    <button
+                                        className="sb-dtrips__detail-btn"
                                         onClick={() => navigate(`/driver/trips/${trip.id}`)}
-                                        style={{
-                                            padding: '0.6rem 1.2rem',
-                                            background: '#333',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '4px',
-                                            cursor: 'pointer',
-                                            fontSize: '0.9rem',
-                                            fontWeight: 'bold'
-                                        }}
+                                        aria-label={`View mission details for trip on ${formattedDate}`}
                                     >
-                                        View Mission Details
+                                        Mission Details
+                                        <em className="sb-dtrips__detail-btn-arrow" aria-hidden="true">→</em>
                                     </button>
                                 </div>
-                            </div>
-                        )
+ 
+                            </article>
+                        );
                     })}
                 </div>
             )}
+ 
         </div>
-     );
+    </div>
+);
 }
  
 export default DriverTrips;

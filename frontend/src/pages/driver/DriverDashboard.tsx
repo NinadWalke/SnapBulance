@@ -5,6 +5,8 @@ import { api } from "../../utils/api";
 import { socket } from "../../utils/socket";
 import { useAuthStore } from "../../store/useAuthStore";
 
+import './DriverDashboard.css'
+
 export interface DriverDashboardProps {}
 
 const DriverDashboard: React.FC<DriverDashboardProps> = () => {
@@ -91,149 +93,171 @@ const DriverDashboard: React.FC<DriverDashboardProps> = () => {
   };
 
   return (
-    <div
-      style={{
-        padding: "2rem",
-        textAlign: "center",
-        maxWidth: "600px",
-        margin: "0 auto",
-      }}
-    >
+    <div className="sb-driver">
+      {/* Ambient background glow — reacts to online/offline */}
       <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: "2rem",
-          color: "#666",
-        }}
-      >
-        <span>Earnings: ₹1,200</span>
-        <span>Trips: 4</span>
-      </div>
+        className={`sb-driver__ambient sb-driver__ambient--${isOnline ? "online" : "offline"}`}
+        aria-hidden="true"
+      />
 
-      <h1>Driver Dashboard 🚑</h1>
-
-      <div
-        onClick={toggleStatus}
-        style={{
-          width: "150px",
-          height: "150px",
-          borderRadius: "50%",
-          background: isOnline ? "#28a745" : "#ccc",
-          color: "white",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          margin: "2rem auto",
-          cursor: isToggling ? "wait" : "pointer",
-          fontSize: "1.5rem",
-          fontWeight: "bold",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
-          opacity: isToggling ? 0.7 : 1,
-        }}
-      >
-        {isToggling ? "..." : isOnline ? "ONLINE" : "OFFLINE"}
-      </div>
-
-      {isOnline ? (
-        <p>Scanning for nearby emergencies...</p>
-      ) : (
-        <p>Go online to start receiving requests.</p>
-      )}
-
-      {/* Request Feed UI */}
-      <div
-        style={{
-          marginTop: "2rem",
-          display: "flex",
-          flexDirection: "column",
-          gap: "1rem",
-        }}
-      >
-        {incomingRequests.map((req) => (
-          <div
-            key={req.id}
-            style={{
-              background: "white",
-              border: "1px solid #ffcccc",
-              borderLeft: "5px solid red",
-              padding: "1.5rem",
-              borderRadius: "8px",
-              textAlign: "left",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-              }}
-            >
-              <div>
-                <h3 style={{ margin: "0 0 0.5rem 0", color: "#d32f2f" }}>
-                  🚨 Emergency Request
-                </h3>
-                <p style={{ margin: 0, color: "#555" }}>
-                  📍 {req.pickupAddress || "Live Location"}
-                </p>
-                <p
-                  style={{
-                    margin: "0.2rem 0 0 0",
-                    fontSize: "0.9rem",
-                    color: "#888",
-                  }}
-                >
-                  Trip ID: {req.id.substring(0, 8)}...
-                </p>
-              </div>
-              <div
-                style={{
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                  color: "#28a745",
-                }}
-              >
-                ~{req.distanceKm ? req.distanceKm.toFixed(1) : "Unknown"} km
-              </div>
-            </div>
-
-            <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
-              <button
-                onClick={() =>
-                  setIncomingRequests((prev) =>
-                    prev.filter((r) => r.id !== req.id),
-                  )
-                }
-                style={{
-                  flex: 1,
-                  padding: "0.8rem",
-                  background: "#f5f5f5",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
-              >
-                Ignore
-              </button>
-              <button
-                onClick={() => handleAccept(req.id)}
-                style={{
-                  flex: 2,
-                  padding: "0.8rem",
-                  background: "#28a745",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                }}
-              >
-                ACCEPT RIDE
-              </button>
-            </div>
+      <div className="sb-driver__card">
+        {/* ── Stats Bar ── */}
+        <div className="sb-driver__stats">
+          <div className="sb-driver__stat">
+            <span className="sb-driver__stat-label">Today's Earnings</span>
+            <span className="sb-driver__stat-value sb-driver__stat-value--green">
+              ₹1,200
+            </span>
           </div>
-        ))}
+          <div className="sb-driver__stat">
+            <span className="sb-driver__stat-label">Trips Completed</span>
+            <span className="sb-driver__stat-value">4</span>
+          </div>
+        </div>
+
+        {/* ── Header ── */}
+        <header className="sb-driver__header">
+          <h1 className="sb-driver__title">Driver Dashboard</h1>
+          <p className="sb-driver__subtitle">
+            Tap the orb to toggle your availability.
+          </p>
+        </header>
+
+        {/* ── Status Toggle Orb ── */}
+        <div
+          className={`sb-driver__orb-wrap sb-driver__orb-wrap--${isOnline ? "online" : "offline"}`}
+        >
+          <div
+            className={`sb-driver__orb sb-driver__orb--${isToggling ? "toggling" : isOnline ? "online" : "offline"}`}
+            onClick={toggleStatus}
+            role="switch"
+            aria-checked={isOnline}
+            aria-label={`Driver status: ${isOnline ? "Online" : "Offline"}. Click to toggle.`}
+            tabIndex={0}
+            onKeyDown={(e) => e.key === "Enter" && toggleStatus()}
+          >
+            {isToggling ? (
+              <div className="sb-driver__orb-spinner" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </div>
+            ) : (
+              <>
+                <span className="sb-driver__orb-icon" aria-hidden="true">
+                  {isOnline ? "🟢" : "🚑"}
+                </span>
+                <span
+                  className={`sb-driver__orb-label${!isOnline ? " sb-driver__orb-label--offline" : ""}`}
+                >
+                  {isOnline ? "ONLINE" : "OFFLINE"}
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* Status caption */}
+          <span
+            className={`sb-driver__orb-caption sb-driver__orb-caption--${isOnline ? "online" : "offline"}`}
+          >
+            {isToggling
+              ? "Updating status..."
+              : isOnline
+                ? "You are receiving requests"
+                : "Go online to receive emergencies"}
+          </span>
+
+          {/* Scanning indicator — only when online */}
+          {isOnline && (
+            <div className="sb-driver__scanning" aria-live="polite">
+              <span className="sb-driver__scanning-dot" aria-hidden="true" />
+              Scanning for nearby emergencies
+              <div className="sb-driver__scan-bars" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+                <span />
+                <span />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Request Feed ── */}
+        {incomingRequests.length > 0 && (
+          <>
+            <div className="sb-driver__feed-header">
+              <h2 className="sb-driver__feed-title">Incoming Requests</h2>
+              <span
+                className="sb-driver__feed-count"
+                aria-label={`${incomingRequests.length} pending requests`}
+              >
+                {incomingRequests.length}
+              </span>
+            </div>
+
+            <div
+              className="sb-driver__feed"
+              role="list"
+              aria-label="Emergency requests"
+            >
+              {incomingRequests.map((req) => (
+                <div
+                  key={req.id}
+                  className="sb-driver__request"
+                  role="listitem"
+                >
+                  <div className="sb-driver__request-top">
+                    {/* Info */}
+                    <div className="sb-driver__request-info">
+                      <h3 className="sb-driver__request-title">
+                        🚨 Emergency Request
+                      </h3>
+                      <span className="sb-driver__request-address">
+                        📍 {req.pickupAddress || "Live Location"}
+                      </span>
+                      <span className="sb-driver__request-id">
+                        # {req.id.substring(0, 8)}...
+                      </span>
+                    </div>
+
+                    {/* Distance */}
+                    <div className="sb-driver__request-dist">
+                      <span className="sb-driver__request-dist-value">
+                        ~{req.distanceKm ? req.distanceKm.toFixed(1) : "—"}
+                      </span>
+                      <span className="sb-driver__request-dist-unit">
+                        km away
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="sb-driver__request-actions">
+                    <button
+                      className="sb-driver__req-btn sb-driver__req-btn--ignore"
+                      onClick={() =>
+                        setIncomingRequests((prev) =>
+                          prev.filter((r) => r.id !== req.id),
+                        )
+                      }
+                      aria-label="Ignore this request"
+                    >
+                      Ignore
+                    </button>
+                    <button
+                      className="sb-driver__req-btn sb-driver__req-btn--accept"
+                      onClick={() => handleAccept(req.id)}
+                      aria-label={`Accept emergency request ${req.id.substring(0, 8)}`}
+                    >
+                      ✓ Accept Ride
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
