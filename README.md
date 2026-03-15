@@ -118,6 +118,38 @@ A summary of the core engineering decisions that power the MVP:
 
 ---
 
+## 🌱 Local Setup & Database Seeding
+
+Before running the application or simulating the real-time WebSocket features, you need to configure your environment and seed the database with initial actors (Drivers, Hospitals, Admins).
+
+**1. Environment Configuration**
+Please refer to **ENV.md** in the project directory at `/documentation`. Copy the required configuration variables listed there and paste them into your local `.env` file at the root of the backend directory.
+
+**2. Seeding the System**
+To make testing the MVP frictionless, we have built a dedicated development controller that populates the database with realistic, geolocated test data. Once your NestJS server is running, use Postman, cURL, or your terminal to hit the following endpoints:
+
+**Seed the Database**
+Make a `POST` request to: `http://localhost:3000/dev/seed-system`
+
+This will automatically generate:
+
+- **2 Hospitals** (Jupiter Hospital & Bethany Hospital) with specific bed/ICU capacities and geospatial coordinates.
+
+- **2 Hospital Admins** to access the receiving dashboard.
+
+- **2 Drivers** with active ambulances (One ALS unit in Thane, One BLS unit in Pune) complete with vehicle metadata and starting coordinates.
+
+- **1 Verified Community First Responder** (CFR).
+
+*Note: All dummy user accounts are created with the password: `password123`*
+
+**Reset the Database**
+Make a `DELETE` request to: `http://localhost:3000/dev/reset-system`
+
+If your testing gets messy, this endpoint acts as a "Clean Slate" button. It safely cascades and deletes all trips, active chat messages, medical reports, and dummy users, then automatically re-seeds the system so you instantly have a fresh, predictable environment for testing routing and live tracking.
+
+---
+
 ## 📬 Contact & Inquiries
 
 SnapBulance's MVP is fully shipped — a distributed, real-time emergency dispatch system running on a production-grade Kubernetes cluster. Building this from scratch across the full stack, from WebSocket gateways and Redis session stores to K8s health probes and rolling deployments, has been an exercise in treating emergency logistics as the resilient distributed system it deserves to be.
