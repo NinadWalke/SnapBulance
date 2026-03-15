@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../../utils/api';
+import './UserEditProfile.css';
 
 export interface UserEditProfileProps {}
 
@@ -71,130 +72,182 @@ const UserEditProfile: React.FC<UserEditProfileProps> = () => {
 
     if (isLoading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading profile...</div>;
 
+    if (isLoading) {
     return (
-        <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
-                <h1 style={{ margin: 0 }}>Edit Profile</h1>
+        <div className="sb-edit__loading">
+            <div className="sb-edit__loading-inner">
+                <div className="sb-edit__loading-spinner" aria-hidden="true" />
+                <span className="sb-edit__loading-text">Loading Profile</span>
             </div>
-            
+        </div>
+    );
+}
+ 
+return (
+    <div className="sb-edit">
+        <div className="sb-edit__card">
+ 
+            {/* ── Page Header ── */}
+            <header className="sb-edit__header">
+                <span className="sb-edit__eyebrow">✏️ Edit Mode</span>
+                <h1 className="sb-edit__title">Update Your Profile</h1>
+                <p className="sb-edit__subtitle">Changes are reflected immediately across your account.</p>
+            </header>
+ 
+            {/* ── Toast Message ── */}
             {message.text && (
-                <div style={{ 
-                    padding: '1rem', 
-                    marginBottom: '1.5rem', 
-                    borderRadius: '4px',
-                    border: `1px solid ${message.type === 'error' ? '#ffcccc' : message.type === 'success' ? '#c3e6cb' : '#bee5eb'}`,
-                    background: message.type === 'error' ? '#fff5f5' : message.type === 'success' ? '#d4edda' : '#d1ecf1',
-                    color: message.type === 'error' ? '#d32f2f' : message.type === 'success' ? '#155724' : '#0c5460'
-                }}>
+                <div
+                    className={`sb-edit__toast sb-edit__toast--${message.type}`}
+                    role="alert"
+                    aria-live="polite"
+                >
+                    <span className="sb-edit__toast-icon" aria-hidden="true">
+                        {message.type === 'error' ? '⚠' : message.type === 'success' ? '✓' : '⟳'}
+                    </span>
                     {message.text}
                 </div>
             )}
-
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                
-                <h3 style={{ margin: '0 0 -0.5rem 0', color: '#007bff', borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>Personal Info</h3>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label style={{ fontWeight: 'bold', color: '#333' }}>Full Name</label>
-                    <input
-                        type="text"
-                        name="fullName"
-                        value={formData.fullName}
-                        onChange={handleChange}
-                        placeholder="John Doe"
-                        style={{ padding: '0.8rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '1rem' }}
-                    />
-                </div>
-
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-                        <label style={{ fontWeight: 'bold', color: '#333' }}>Email</label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            placeholder="john@example.com"
-                            style={{ padding: '0.8rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '1rem' }}
-                        />
+ 
+            {/* ── Form ── */}
+            <form className="sb-edit__form" onSubmit={handleSubmit} noValidate>
+ 
+                {/* ── Personal Info Section ── */}
+                <div className="sb-edit__section">
+                    <div className="sb-edit__section-header">
+                        <span className="sb-edit__section-icon" aria-hidden="true">📋</span>
+                        <h2 className="sb-edit__section-title">Personal Info</h2>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-                        <label style={{ fontWeight: 'bold', color: '#333' }}>Phone</label>
-                        <input
-                            type="tel"
-                            name="phone"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            placeholder="+91 99999 99999"
-                            style={{ padding: '0.8rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '1rem' }}
-                        />
+                    <div className="sb-edit__section-body">
+ 
+                        {/* Full Name */}
+                        <div className="sb-edit__field">
+                            <label className="sb-edit__label" htmlFor="fullName">Full Name</label>
+                            <input
+                                id="fullName"
+                                className="sb-edit__input"
+                                type="text"
+                                name="fullName"
+                                value={formData.fullName}
+                                onChange={handleChange}
+                                placeholder="John Doe"
+                                autoComplete="name"
+                            />
+                        </div>
+ 
+                        {/* Email + Phone */}
+                        <div className="sb-edit__row-2col">
+                            <div className="sb-edit__field">
+                                <label className="sb-edit__label" htmlFor="email">Email</label>
+                                <input
+                                    id="email"
+                                    className="sb-edit__input"
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    placeholder="john@example.com"
+                                    autoComplete="email"
+                                />
+                            </div>
+                            <div className="sb-edit__field">
+                                <label className="sb-edit__label" htmlFor="phone">Phone</label>
+                                <input
+                                    id="phone"
+                                    className="sb-edit__input"
+                                    type="tel"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    placeholder="+91 99999 99999"
+                                    autoComplete="tel"
+                                />
+                            </div>
+                        </div>
+ 
                     </div>
                 </div>
-
-                <h3 style={{ margin: '1rem 0 -0.5rem 0', color: '#d32f2f', borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>Medical Info</h3>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label style={{ fontWeight: 'bold', color: '#333' }}>Blood Type</label>
-                    <select
-                        name="bloodType"
-                        value={formData.bloodType}
-                        onChange={handleChange}
-                        style={{ padding: '0.8rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '1rem' }}
-                    >
-                        <option value="">Select Blood Type</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                    </select>
+ 
+                {/* ── Medical Info Section ── */}
+                <div className="sb-edit__section sb-edit__section--medical">
+                    <div className="sb-edit__section-header">
+                        <span className="sb-edit__section-icon" aria-hidden="true">🏥</span>
+                        <h2 className="sb-edit__section-title">Medical ID</h2>
+                    </div>
+                    <div className="sb-edit__section-body">
+ 
+                        {/* Blood Type */}
+                        <div className="sb-edit__field">
+                            <label className="sb-edit__label" htmlFor="bloodType">Blood Type</label>
+                            <div className="sb-edit__select-wrap">
+                                <select
+                                    id="bloodType"
+                                    className="sb-edit__select"
+                                    name="bloodType"
+                                    value={formData.bloodType}
+                                    onChange={handleChange}
+                                >
+                                    <option value="">Select Blood Type</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                </select>
+                            </div>
+                        </div>
+ 
+                        {/* Allergies */}
+                        <div className="sb-edit__field">
+                            <label className="sb-edit__label" htmlFor="allergies">Allergies</label>
+                            <textarea
+                                id="allergies"
+                                className="sb-edit__textarea"
+                                name="allergies"
+                                value={formData.allergies}
+                                onChange={handleChange}
+                                placeholder="E.g., Penicillin, Peanuts — leave blank if none"
+                                rows={3}
+                            />
+                        </div>
+ 
+                        {/* Emergency Contact */}
+                        <div className="sb-edit__field">
+                            <label className="sb-edit__label" htmlFor="emergencyContact">Emergency Contact</label>
+                            <input
+                                id="emergencyContact"
+                                className="sb-edit__input"
+                                type="text"
+                                name="emergencyContact"
+                                value={formData.emergencyContact}
+                                onChange={handleChange}
+                                placeholder="E.g., Jane Doe (+91 99999 88888)"
+                            />
+                        </div>
+ 
+                    </div>
                 </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label style={{ fontWeight: 'bold', color: '#333' }}>Allergies</label>
-                    <textarea
-                        name="allergies"
-                        value={formData.allergies}
-                        onChange={handleChange}
-                        placeholder="E.g., Penicillin, Peanuts (Leave blank if none)"
-                        rows={3}
-                        style={{ padding: '0.8rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '1rem', fontFamily: 'inherit' }}
-                    />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label style={{ fontWeight: 'bold', color: '#333' }}>Emergency Contact</label>
-                    <input
-                        type="text"
-                        name="emergencyContact"
-                        value={formData.emergencyContact}
-                        onChange={handleChange}
-                        placeholder="E.g., Jane Doe (+91 99999 88888)"
-                        style={{ padding: '0.8rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '1rem' }}
-                    />
-                </div>
-
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                    <button
-                        type="submit"
-                        style={{ padding: '0.8rem 1.5rem', background: '#333', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1, fontWeight: 'bold' }}
-                    >
-                        Save Changes
+ 
+                {/* ── Actions ── */}
+                <div className="sb-edit__actions">
+                    <button type="submit" className="sb-edit__btn sb-edit__btn--save">
+                        ✓ Save Changes
                     </button>
                     <button
                         type="button"
+                        className="sb-edit__btn sb-edit__btn--cancel"
                         onClick={() => navigate('/user/profile')}
-                        style={{ padding: '0.8rem 1.5rem', background: 'transparent', color: '#333', border: '2px solid #ccc', borderRadius: '4px', cursor: 'pointer', flex: 1, fontWeight: 'bold' }}
                     >
-                        Cancel
+                        ✕ Cancel
                     </button>
                 </div>
+ 
             </form>
         </div>
-    );
+    </div>
+);
 }
 
 export default UserEditProfile;

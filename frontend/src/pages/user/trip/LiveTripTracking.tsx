@@ -7,6 +7,8 @@ import { useAuthStore } from "../../../store/useAuthStore";
 import { socket } from "../../../utils/socket";
 import { api } from "../../../utils/api";
 
+import './LiveTripTracking.css'
+
 export interface LiveTripTrackingProps {}
 
 interface ChatMessage {
@@ -155,287 +157,153 @@ const LiveTripTracking: React.FC<LiveTripTrackingProps> = () => {
     targetLocation || [19.1973, 72.9644];
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        maxWidth: "600px",
-        margin: "0 auto",
-        border: "1px solid #ddd",
-        position: "relative",
-      }}
-    >
-      {/* Map Area */}
-      <div
-        style={{
-          flex: 2,
-          position: "relative",
-          display: isChatOpen ? "none" : "block",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            top: "10px",
-            left: "10px",
-            zIndex: 1000,
-            background: "white",
-            padding: "0.5rem 1rem",
-            borderRadius: "20px",
-            boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-            fontSize: "0.9rem",
-            fontWeight: "bold",
-          }}
-        >
-          Trip ID: {tripId}
-        </div>
-
-        {targetLocation ? (
-          <MapComponent
-            center={mapCenter}
-            zoom={14}
-            markers={markers}
-            polyline={routeCoords}
-          />
-        ) : (
-          <div style={{ padding: "2rem", textAlign: "center" }}>
-            Loading Map...
-          </div>
-        )}
-      </div>{" "}
-      {/* <-- ADDED THIS MISSING CLOSING DIV TO FIX YOUR SCOPE ERROR */}
-      {/* Chat Area (Overlays Map when open) */}
-      {isChatOpen && (
-        <div
-          style={{
-            flex: 2,
-            display: "flex",
-            flexDirection: "column",
-            background: "#f9f9f9",
-          }}
-        >
-          <div
-            style={{
-              padding: "1rem",
-              background: "#333",
-              color: "white",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <h3 style={{ margin: 0 }}>Driver Chat</h3>
-            <button
-              onClick={() => setIsChatOpen(false)}
-              style={{
-                background: "transparent",
-                color: "white",
-                border: "none",
-                cursor: "pointer",
-                fontSize: "1.2rem",
-              }}
-            >
-              ✖
-            </button>
-          </div>
-
-          {/* Message List */}
-          <div
-            style={{
-              flex: 1,
-              overflowY: "auto",
-              padding: "1rem",
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.5rem",
-            }}
-          >
-            {messages.length === 0 ? (
-              <p
-                style={{
-                  textAlign: "center",
-                  color: "#888",
-                  marginTop: "2rem",
-                }}
-              >
-                No messages yet. Say hello!
-              </p>
+    <div className="sb-tracking">
+ 
+        {/* ── Map Area ── */}
+        <div className={`sb-tracking__map-area${isChatOpen ? ' sb-tracking__map-area--hidden' : ''}`}>
+            {/* Live HUD badge */}
+            <div className="sb-tracking__hud-badge" aria-label="Live trip">
+                <span className="sb-tracking__hud-badge-dot" aria-hidden="true" />
+                # {tripId}
+            </div>
+ 
+            {targetLocation ? (
+                <MapComponent
+                    center={mapCenter}
+                    zoom={14}
+                    markers={markers}
+                    polyline={routeCoords}
+                />
             ) : (
-              messages.map((msg, idx) => {
-                const isMe = msg.senderId === user?.id;
-                return (
-                  <div
-                    key={idx}
-                    style={{
-                      alignSelf: isMe ? "flex-end" : "flex-start",
-                      maxWidth: "80%",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: "0.75rem",
-                        color: "#666",
-                        marginBottom: "2px",
-                        textAlign: isMe ? "right" : "left",
-                      }}
-                    >
-                      {msg.senderName}
-                    </div>
-                    <div
-                      style={{
-                        padding: "0.8rem",
-                        borderRadius: "12px",
-                        background: isMe ? "#d32f2f" : "#e0e0e0",
-                        color: isMe ? "white" : "black",
-                        borderBottomRightRadius: isMe ? "2px" : "12px",
-                        borderBottomLeftRadius: isMe ? "12px" : "2px",
-                      }}
-                    >
-                      {msg.message}
-                    </div>
-                  </div>
-                );
-              })
+                <div className="sb-tracking__map-loading" role="status">
+                    <div className="sb-tracking__map-loading-spinner" aria-hidden="true" />
+                    <span className="sb-tracking__map-loading-text">Acquiring Location</span>
+                </div>
             )}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Chat Input */}
-          <form
-            onSubmit={handleSendMessage}
-            style={{
-              padding: "1rem",
-              background: "white",
-              borderTop: "1px solid #ddd",
-              display: "flex",
-              gap: "0.5rem",
-            }}
-          >
-            <input
-              type="text"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder="Message driver..."
-              style={{
-                flex: 1,
-                padding: "0.8rem",
-                borderRadius: "20px",
-                border: "1px solid #ccc",
-                outline: "none",
-              }}
-            />
-            <button
-              type="submit"
-              style={{
-                padding: "0 1.2rem",
-                background: "#333",
-                color: "white",
-                border: "none",
-                borderRadius: "20px",
-                cursor: "pointer",
-              }}
-            >
-              Send
-            </button>
-          </form>
         </div>
-      )}
-      {/* Bottom Sheet / Driver Info */}
-      <div
-        style={{
-          flex: 1,
-          padding: "1.5rem",
-          background: "white",
-          borderTop: "1px solid #ccc",
-          boxShadow: "0 -4px 10px rgba(0,0,0,0.05)",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginBottom: "1.5rem",
-            alignItems: "center",
-          }}
-        >
-          <div>
-            <h2 style={{ margin: "0 0 0.2rem 0", color: "#333" }}>
-              Status Update
-            </h2>
-            <p style={{ margin: 0, color: "#2e7d32", fontWeight: "bold" }}>
-              {statusMessage}
-            </p>
-            {etaMins !== null && (
-              <p
-                style={{
-                  margin: "0.5rem 0 0 0",
-                  color: "#d32f2f",
-                  fontWeight: "bold",
-                  fontSize: "0.9rem",
-                }}
-              >
-                ⚡ Arriving in ~{etaMins} min{etaMins !== 1 ? "s" : ""}
-              </p>
-            )}
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <h3
-              style={{
-                margin: "0 0 0.2rem 0",
-                background: "#f5f5f5",
-                padding: "0.3rem 0.6rem",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                display: "inline-block",
-              }}
-            >
-              MH-04-AB-1234
-            </h3>
-            <p style={{ margin: 0, color: "#666", fontSize: "0.9rem" }}>
-              Mercedes Sprinter (ALS)
-            </p>
-          </div>
+ 
+        {/* ── Chat Panel (replaces map when open) ── */}
+        {isChatOpen && (
+            <div className="sb-tracking__chat">
+                {/* Chat Header */}
+                <div className="sb-tracking__chat-header">
+                    <div className="sb-tracking__chat-title">
+                        <span aria-hidden="true">💬</span>
+                        <h3 className="sb-tracking__chat-title-text">Driver Chat</h3>
+                        <span className="sb-tracking__chat-online">
+                            <span className="sb-tracking__chat-online-dot" aria-hidden="true" />
+                            Live
+                        </span>
+                    </div>
+                    <button
+                        className="sb-tracking__chat-close"
+                        onClick={() => setIsChatOpen(false)}
+                        aria-label="Close chat"
+                    >
+                        ✕
+                    </button>
+                </div>
+ 
+                {/* Message List */}
+                <div className="sb-tracking__messages" role="log" aria-live="polite" aria-label="Chat messages">
+                    {messages.length === 0 ? (
+                        <div className="sb-tracking__chat-empty">
+                            <span className="sb-tracking__chat-empty-icon" aria-hidden="true">💬</span>
+                            <span className="sb-tracking__chat-empty-text">No messages yet. Say hello!</span>
+                        </div>
+                    ) : (
+                        messages.map((msg, idx) => {
+                            const isMe = msg.senderId === user?.id;
+                            return (
+                                <div
+                                    key={idx}
+                                    className={`sb-tracking__msg ${isMe ? 'sb-tracking__msg--me' : 'sb-tracking__msg--them'}`}
+                                >
+                                    <span className="sb-tracking__msg-sender">{msg.senderName}</span>
+                                    <div className="sb-tracking__msg-bubble">{msg.message}</div>
+                                </div>
+                            );
+                        })
+                    )}
+                    <div ref={messagesEndRef} />
+                </div>
+ 
+                {/* Chat Input */}
+                <form className="sb-tracking__chat-form" onSubmit={handleSendMessage}>
+                    <input
+                        className="sb-tracking__chat-input"
+                        type="text"
+                        value={inputText}
+                        onChange={(e) => setInputText(e.target.value)}
+                        placeholder="Message driver..."
+                        aria-label="Message input"
+                        autoComplete="off"
+                    />
+                    <button
+                        type="submit"
+                        className="sb-tracking__chat-send"
+                        aria-label="Send message"
+                    >
+                        ↑
+                    </button>
+                </form>
+            </div>
+        )}
+ 
+        {/* ── Bottom Sheet ── */}
+        <div className="sb-tracking__sheet">
+ 
+            {/* Status Row */}
+            <div className="sb-tracking__status-row">
+                <div className="sb-tracking__status-left">
+                    <span className="sb-tracking__status-eyebrow">Live Status</span>
+                    <p className="sb-tracking__status-message">{statusMessage}</p>
+                    {etaMins !== null && (
+                        <span className="sb-tracking__eta" aria-live="polite">
+                            ⚡ Arriving in ~{etaMins} min{etaMins !== 1 ? 's' : ''}
+                        </span>
+                    )}
+                </div>
+ 
+                <div className="sb-tracking__ambulance">
+                    <span className="sb-tracking__plate" title="Ambulance plate number">
+                        MH-04-AB-1234
+                    </span>
+                    <span className="sb-tracking__ambulance-type">Mercedes Sprinter (ALS)</span>
+                </div>
+            </div>
+ 
+            {/* Action Buttons */}
+            <div className="sb-tracking__actions">
+                <button
+                    className={`sb-tracking__btn sb-tracking__btn--chat${isChatOpen ? ' sb-tracking__btn--chat--active' : ''}`}
+                    onClick={() => setIsChatOpen(!isChatOpen)}
+                    aria-pressed={isChatOpen}
+                >
+                    {isChatOpen ? (
+                        <><span aria-hidden="true">🗺️</span> View Map</>
+                    ) : (
+                        <>
+                            <span aria-hidden="true">💬</span>
+                            Chat
+                            {messages.length > 0 && (
+                                <span className="sb-tracking__chat-badge" aria-label={`${messages.length} messages`}>
+                                    {messages.length}
+                                </span>
+                            )}
+                        </>
+                    )}
+                </button>
+ 
+                <button className="sb-tracking__btn sb-tracking__btn--share">
+                    <span aria-hidden="true">📍</span>
+                    Share Status
+                </button>
+            </div>
+ 
         </div>
-
-        <div style={{ display: "flex", gap: "1rem" }}>
-          {/* Toggle Chat Button */}
-          <button
-            onClick={() => setIsChatOpen(!isChatOpen)}
-            style={{
-              flex: 1,
-              padding: "1rem",
-              background: isChatOpen ? "#ddd" : "#f0f0f0",
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "bold",
-              color: "#333",
-            }}
-          >
-            {isChatOpen ? "🗺️ View Map" : "💬 Chat with Driver"}
-          </button>
-          <button
-            style={{
-              flex: 1,
-              padding: "1rem",
-              background: "#d32f2f",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            📍 Share Status
-          </button>
-        </div>
-      </div>
     </div>
-  );
+);
 };
 
 export default LiveTripTracking;

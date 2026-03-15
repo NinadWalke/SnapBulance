@@ -1,0 +1,317 @@
+/* =============================================
+   SNAPBULANCE — Navbar.css
+   Design Language: Medical-Grade Command Center
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── CSS Variables ───────────────────────────── */
+:root {
+  --sb-navy-950:   #050d1a;
+  --sb-navy-900:   #080f1e;
+  --sb-navy-800:   #0d1829;
+  --sb-navy-700:   #112036;
+  --sb-navy-400:   #4a6fa5;
+  --sb-navy-200:   #a8bdd8;
+  --sb-navy-100:   #dce6f2;
+
+  --sb-red-600:    #c8102e;
+  --sb-red-500:    #e8192d;
+  --sb-red-400:    #ff2d42;
+  --sb-red-glow:   rgba(232, 25, 45, 0.35);
+
+  --sb-white:      #f5f8fc;
+  --sb-glass-bg:   rgba(8, 15, 30, 0.82);
+  --sb-glass-border: rgba(74, 111, 165, 0.22);
+  --sb-glass-hover:  rgba(74, 111, 165, 0.12);
+
+  --sb-font-display: 'Syne', sans-serif;
+  --sb-font-body:    'DM Sans', sans-serif;
+
+  --sb-nav-height: 68px;
+  --sb-transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --sb-shadow-nav: 0 1px 0 var(--sb-glass-border),
+                   0 8px 32px rgba(0, 0, 0, 0.45),
+                   0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Navbar Shell ────────────────────────────── */
+.sb-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: var(--sb-nav-height);
+  width: 100%;
+  background: var(--sb-glass-bg);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border-bottom: 1px solid var(--sb-glass-border);
+  box-shadow: var(--sb-shadow-nav);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  box-sizing: border-box;
+  font-family: var(--sb-font-body);
+}
+
+/* Subtle top accent line */
+.sb-navbar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--sb-red-500) 30%,
+    var(--sb-red-400) 50%,
+    var(--sb-red-500) 70%,
+    transparent 100%
+  );
+  opacity: 0.9;
+}
+
+/* ── Logo ────────────────────────────────────── */
+.sb-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.sb-logo__icon {
+  font-size: 1.45rem;
+  line-height: 1;
+  animation: sb-pulse 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px var(--sb-red-glow));
+}
+
+.sb-logo__text {
+  font-family: var(--sb-font-display);
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--sb-white);
+}
+
+.sb-logo__text span {
+  color: var(--sb-red-500);
+  text-shadow: 0 0 18px var(--sb-red-glow);
+}
+
+.sb-logo:hover .sb-logo__text {
+  color: var(--sb-white);
+  opacity: 0.9;
+}
+
+/* Ambulance pulse animation */
+@keyframes sb-pulse {
+  0%, 100% { transform: scale(1);   filter: drop-shadow(0 0 6px var(--sb-red-glow)); }
+  50%       { transform: scale(1.12); filter: drop-shadow(0 0 14px var(--sb-red-glow)); }
+}
+
+/* ── Nav Right Cluster ───────────────────────── */
+.sb-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* ── Nav Links ───────────────────────────────── */
+.sb-nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.9rem;
+  font-family: var(--sb-font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--sb-navy-200);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: color var(--sb-transition), background var(--sb-transition);
+  white-space: nowrap;
+}
+
+.sb-nav-link:hover {
+  color: var(--sb-white);
+  background: var(--sb-glass-hover);
+}
+
+/* Active underline indicator */
+.sb-nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 60%;
+  height: 1.5px;
+  background: var(--sb-red-500);
+  border-radius: 2px;
+  transition: transform var(--sb-transition);
+  transform-origin: center;
+}
+
+.sb-nav-link:hover::after,
+.sb-nav-link.active::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+/* ── CFR Duty Special Link ───────────────────── */
+.sb-nav-link--cfr {
+  color: var(--sb-red-400);
+  font-weight: 600;
+  background: rgba(232, 25, 45, 0.08);
+  border: 1px solid rgba(232, 25, 45, 0.2);
+}
+
+.sb-nav-link--cfr:hover {
+  color: var(--sb-white);
+  background: rgba(232, 25, 45, 0.18);
+  border-color: rgba(232, 25, 45, 0.4);
+  box-shadow: 0 0 14px rgba(232, 25, 45, 0.2);
+}
+
+.sb-nav-link--cfr::after {
+  background: var(--sb-red-400);
+}
+
+/* ── Auth Links (Login / Register) ──────────── */
+.sb-nav-link--login {
+  color: var(--sb-navy-200);
+  border: 1px solid transparent;
+}
+
+.sb-nav-link--register {
+  color: var(--sb-white);
+  background: var(--sb-red-600);
+  border: 1px solid var(--sb-red-500);
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(200, 16, 46, 0.35);
+  transition: background var(--sb-transition), box-shadow var(--sb-transition), transform var(--sb-transition);
+}
+
+.sb-nav-link--register:hover {
+  background: var(--sb-red-500);
+  box-shadow: 0 4px 20px rgba(200, 16, 46, 0.55);
+  transform: translateY(-1px);
+  color: var(--sb-white);
+}
+
+.sb-nav-link--register::after { display: none; }
+
+/* ── Divider ─────────────────────────────────── */
+.sb-nav-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--sb-glass-border);
+  margin: 0 0.5rem;
+  flex-shrink: 0;
+}
+
+/* ── Logout Button ───────────────────────────── */
+.sb-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.42rem 1rem;
+  background: transparent;
+  color: var(--sb-navy-200);
+  border: 1px solid var(--sb-glass-border);
+  border-radius: 6px;
+  font-family: var(--sb-font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: color var(--sb-transition),
+              border-color var(--sb-transition),
+              background var(--sb-transition),
+              box-shadow var(--sb-transition);
+  white-space: nowrap;
+}
+
+.sb-logout-btn:hover {
+  color: var(--sb-white);
+  border-color: rgba(74, 111, 165, 0.5);
+  background: var(--sb-glass-hover);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sb-logout-btn:active {
+  transform: scale(0.97);
+}
+
+.sb-logout-btn__icon {
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+/* ── User Badge ──────────────────────────────── */
+.sb-user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.75rem 0.3rem 0.4rem;
+  background: var(--sb-glass-hover);
+  border: 1px solid var(--sb-glass-border);
+  border-radius: 20px;
+  margin-right: 0.25rem;
+}
+
+.sb-user-badge__avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sb-navy-700), var(--sb-navy-400));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--sb-white);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.sb-user-badge__role {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sb-navy-200);
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 768px) {
+  .sb-navbar {
+    padding: 0 1rem;
+    gap: 0.5rem;
+  }
+
+  .sb-nav-link {
+    padding: 0.4rem 0.55rem;
+    font-size: 0.78rem;
+  }
+
+  .sb-user-badge {
+    display: none;
+  }
+
+  .sb-logo__text {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sb-nav-divider { display: none; }
+
+  .sb-nav-link--login { display: none; }
+}

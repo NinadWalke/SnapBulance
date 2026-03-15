@@ -2,6 +2,7 @@ import * as React from "react";
 import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { socket } from "../../../utils/socket"; // Import your socket
+import "./LookingForDriver.css";
 
 export interface LookingForDriverProps {}
 
@@ -34,64 +35,78 @@ const LookingForDriver: React.FC<LookingForDriverProps> = () => {
   }, [navigate, tripId]);
 
   return (
-    <div
-      style={{
-        padding: "2rem",
-        textAlign: "center",
-        maxWidth: "600px",
-        margin: "0 auto",
-        marginTop: "10vh",
-      }}
-    >
-      <style>{`
-                @keyframes pulse {
-                    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7); }
-                    70% { transform: scale(1); box-shadow: 0 0 0 30px rgba(211, 47, 47, 0); }
-                    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
-                }
-            `}</style>
+    <div className="sb-searching">
+      <div className="sb-searching__content">
+        {/* ── Header ── */}
+        <header className="sb-searching__header">
+          <span className="sb-searching__eyebrow">
+            <span className="sb-searching__eyebrow-dot" aria-hidden="true" />
+            Live Dispatch
+          </span>
+          <h1 className="sb-searching__title">
+            Locating
+            <br />
+            Nearest Unit
+          </h1>
+          <span className="sb-searching__trip-id" title="Trip ID">
+            # {tripId}
+          </span>
+        </header>
 
-      <h1 style={{ color: "#333" }}>🔍 Locating Ambulance...</h1>
-      <p style={{ color: "#666" }}>Trip ID: {tripId}</p>
-
-      <div
-        style={{
-          margin: "4rem auto",
-          height: "120px",
-          width: "120px",
-          background: "#d32f2f",
-          borderRadius: "50%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          animation: "pulse 1.5s infinite",
-          color: "white",
-          fontSize: "2rem",
-        }}
-      >
-        🚑
-      </div>
-
-      <div style={{ marginTop: "4rem", paddingTop: "1rem" }}>
-        <p
-          style={{ color: "#888", fontSize: "0.9rem", marginBottom: "0.5rem" }}
+        {/* ── Sonar Pulse Rig ── */}
+        <div
+          className="sb-sonar"
+          role="status"
+          aria-label="Searching for ambulance"
         >
-          Match taking too long?
-        </p>
-        <Link to={`/user/track/${tripId}`}>
-          <button
-            style={{
-              padding: "0.6rem 1.2rem",
-              background: "#333",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
-          >
-            Force Dev Match
-          </button>
-        </Link>
+          <div
+            className="sb-sonar__ring sb-sonar__ring--1"
+            aria-hidden="true"
+          />
+          <div
+            className="sb-sonar__ring sb-sonar__ring--2"
+            aria-hidden="true"
+          />
+          <div
+            className="sb-sonar__ring sb-sonar__ring--3"
+            aria-hidden="true"
+          />
+          <div className="sb-sonar__core" aria-hidden="true">
+            🚑
+          </div>
+        </div>
+
+        {/* ── Status Ticker ── */}
+        <div className="sb-searching__status" aria-live="polite">
+          <div className="sb-searching__steps" aria-label="Dispatch steps">
+            <span
+              className="sb-searching__step sb-searching__step--done"
+              title="Trip created"
+            />
+            <span
+              className="sb-searching__step sb-searching__step--done"
+              title="Location confirmed"
+            />
+            <span
+              className="sb-searching__step sb-searching__step--active"
+              title="Finding driver"
+            />
+            <span className="sb-searching__step" title="Driver assigned" />
+            <span className="sb-searching__step" title="En route" />
+          </div>
+          <span className="sb-searching__status-label">
+            Scanning for available units
+            <span className="sb-searching__ellipsis" aria-hidden="true" />
+          </span>
+        </div>
+
+        {/* ── Dev Match Panel ── */}
+        <div className="sb-searching__dev-panel">
+          <span className="sb-searching__dev-hint">Match taking too long?</span>
+          <Link to={`/user/track/${tripId}`} className="sb-dev-btn">
+            ⚡ Force Dev Match
+          </Link>
+        </div>
       </div>
     </div>
   );
