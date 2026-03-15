@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import './UnauthorizedPage.css';
+
 export interface UnauthorizedPageProps {
     
 }

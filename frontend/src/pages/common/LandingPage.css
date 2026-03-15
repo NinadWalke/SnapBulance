@@ -1,0 +1,650 @@
+/* =============================================
+   SNAPBULANCE — LandingPage.css
+   Design Language: EMERGENCY BROADCAST SYSTEM
+   A dark ops command centre meets Indian emergency
+   infrastructure. Cinematic, urgent, unforgettable.
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Bebas+Neue&display=swap');
+
+/* ── CSS Variables ───────────────────────────── */
+:root {
+  --lp-black:       #02070f;
+  --lp-navy-950:    #050d1a;
+  --lp-navy-900:    #080f1e;
+  --lp-navy-800:    #0d1829;
+  --lp-navy-600:    #1a2e4a;
+  --lp-navy-400:    #4a6fa5;
+  --lp-navy-200:    #a8bdd8;
+  --lp-navy-100:    #dce6f2;
+
+  --lp-red-700:     #8b0000;
+  --lp-red-600:     #c8102e;
+  --lp-red-500:     #e8192d;
+  --lp-red-400:     #ff2d42;
+  --lp-red-glow:    rgba(232, 25, 45, 0.4);
+
+  --lp-white:       #f5f8fc;
+  --lp-green:       #22c55e;
+
+  --lp-font-display: 'Bebas Neue', sans-serif;
+  --lp-font-syne:    'Syne', sans-serif;
+  --lp-font-body:    'DM Sans', sans-serif;
+}
+
+/* ── Global Reset (scoped) ───────────────────── */
+.sb-landing * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Page Root ───────────────────────────────── */
+.sb-landing {
+  background: var(--lp-black);
+  font-family: var(--lp-font-body);
+  color: var(--lp-white);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ════════════════════════════════════════════════
+   HERO SECTION
+════════════════════════════════════════════════ */
+.sb-lp-hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem 5rem;
+  text-align: center;
+  overflow: hidden;
+}
+
+/* ── Grid Lines Background ───────────────────── */
+.sb-lp-hero__grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.035;
+  background-image:
+    linear-gradient(rgba(74, 111, 165, 1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74, 111, 165, 1) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+}
+
+/* ── Radial glow behind title ────────────────── */
+.sb-lp-hero__glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  width: 900px;
+  height: 700px;
+  background: radial-gradient(ellipse, rgba(232, 25, 45, 0.1) 0%, rgba(74, 111, 165, 0.05) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── ECG / Heartbeat SVG ─────────────────────── */
+.sb-lp-hero__ecg-wrap {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.sb-lp-hero__ecg {
+  width: 100%;
+  height: 100%;
+  opacity: 0.12;
+}
+
+.sb-lp-hero__ecg path {
+  stroke: var(--lp-red-500);
+  stroke-width: 1.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  animation: sb-ecg-scroll 4s ease-in-out infinite;
+}
+
+@keyframes sb-ecg-scroll {
+  0%   { stroke-dashoffset: 1200; opacity: 0; }
+  10%  { opacity: 1; }
+  70%  { stroke-dashoffset: 0; opacity: 0.8; }
+  90%  { opacity: 0; }
+  100% { stroke-dashoffset: -200; opacity: 0; }
+}
+
+/* ── Hero Content ────────────────────────────── */
+.sb-lp-hero__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* Live badge */
+.sb-lp-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.9rem;
+  background: rgba(232, 25, 45, 0.1);
+  border: 1px solid rgba(232, 25, 45, 0.3);
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(232, 25, 45, 0.9);
+  margin-bottom: 1.75rem;
+  animation: sb-lp-fade-down 600ms cubic-bezier(0.4,0,0.2,1) 100ms both;
+}
+
+.sb-lp-hero__badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--lp-red-500);
+  box-shadow: 0 0 8px rgba(232, 25, 45, 0.9);
+  animation: sb-blink 1.2s ease-in-out infinite;
+}
+
+@keyframes sb-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+/* ── Title ───────────────────────────────────── */
+.sb-lp-hero__title {
+  font-family: var(--lp-font-display);
+  font-size: clamp(5rem, 15vw, 11rem);
+  font-weight: 400; /* Bebas Neue is always heavy */
+  letter-spacing: 0.02em;
+  line-height: 0.9;
+  color: var(--lp-white);
+  margin-bottom: 0.2em;
+  animation: sb-lp-fade-up 700ms cubic-bezier(0.4,0,0.2,1) 200ms both;
+  position: relative;
+}
+
+/* Red underline slash under SNAP */
+.sb-lp-hero__title-snap {
+  color: var(--lp-white);
+  position: relative;
+  display: inline-block;
+}
+
+.sb-lp-hero__title-snap::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--lp-red-600), var(--lp-red-400));
+  border-radius: 2px;
+  box-shadow: 0 0 16px var(--lp-red-glow);
+}
+
+.sb-lp-hero__title-bulance {
+  color: var(--lp-red-500);
+  text-shadow: 0 0 60px rgba(232, 25, 45, 0.5);
+}
+
+/* ── Tagline ─────────────────────────────────── */
+.sb-lp-hero__tagline {
+  font-family: var(--lp-font-syne);
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.55);
+  margin-bottom: 3rem;
+  animation: sb-lp-fade-up 700ms cubic-bezier(0.4,0,0.2,1) 350ms both;
+}
+
+.sb-lp-hero__tagline em {
+  font-style: normal;
+  color: rgba(168, 189, 216, 0.9);
+}
+
+/* ── CTA Button ──────────────────────────────── */
+.sb-lp-cta-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  animation: sb-lp-fade-up 700ms cubic-bezier(0.4,0,0.2,1) 500ms both;
+}
+
+.sb-lp-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 1.2rem 3.5rem;
+  background: linear-gradient(135deg, var(--lp-red-700), var(--lp-red-600) 40%, var(--lp-red-500));
+  color: white;
+  border: none;
+  border-radius: 60px;
+  font-family: var(--lp-font-syne);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  overflow: hidden;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.08) inset,
+    0 6px 30px rgba(200, 16, 46, 0.55),
+    0 2px 8px rgba(0,0,0,0.4);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Shimmer */
+.sb-lp-cta::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  transform: skewX(-20deg);
+  transition: left 700ms ease;
+}
+
+.sb-lp-cta:hover::before { left: 160%; }
+
+.sb-lp-cta:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.1) inset,
+    0 12px 40px rgba(200, 16, 46, 0.7),
+    0 4px 12px rgba(0,0,0,0.5);
+}
+
+.sb-lp-cta:active { transform: scale(0.97); }
+
+.sb-lp-cta__icon { font-size: 1.3rem; }
+
+/* Pulse ring around CTA */
+.sb-lp-cta-ring {
+  position: absolute;
+  inset: -3px;
+  border-radius: 63px;
+  border: 1.5px solid rgba(232, 25, 45, 0.5);
+  animation: sb-cta-ring-pulse 2.5s ease-out infinite;
+  pointer-events: none;
+}
+
+.sb-lp-cta-ring--2 { animation-delay: 0.8s; }
+.sb-lp-cta-ring--3 { animation-delay: 1.6s; }
+
+@keyframes sb-cta-ring-pulse {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+/* Disclaimer under CTA */
+.sb-lp-cta-note {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: rgba(168, 189, 216, 0.25);
+  letter-spacing: 0.05em;
+}
+
+/* ── Scroll indicator ────────────────────────── */
+.sb-lp-hero__scroll {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  z-index: 1;
+  animation: sb-lp-fade-up 600ms ease 1200ms both;
+}
+
+.sb-lp-hero__scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, rgba(74,111,165,0.5));
+  position: relative;
+  overflow: hidden;
+}
+
+.sb-lp-hero__scroll-line::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  width: 1px;
+  height: 14px;
+  background: rgba(74,111,165,0.9);
+  animation: sb-scroll-drop 1.8s ease-in-out infinite;
+}
+
+@keyframes sb-scroll-drop {
+  0%   { top: -10px; opacity: 0; }
+  20%  { opacity: 1; }
+  100% { top: 50px;  opacity: 0; }
+}
+
+.sb-lp-hero__scroll-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(74,111,165,0.4);
+}
+
+/* ── Hero Stats Strip ────────────────────────── */
+.sb-lp-stats {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-top: 3.5rem;
+  border: 1px solid rgba(74, 111, 165, 0.15);
+  border-radius: 14px;
+  background: rgba(8, 15, 30, 0.7);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  animation: sb-lp-fade-up 700ms cubic-bezier(0.4,0,0.2,1) 700ms both;
+  max-width: 600px;
+  width: 100%;
+}
+
+.sb-lp-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-right: 1px solid rgba(74, 111, 165, 0.1);
+  gap: 0.15rem;
+}
+
+.sb-lp-stat:last-child { border-right: none; }
+
+.sb-lp-stat__value {
+  font-family: var(--lp-font-display);
+  font-size: 1.8rem;
+  color: var(--lp-white);
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.sb-lp-stat__value--red { color: var(--lp-red-400); text-shadow: 0 0 20px rgba(232,25,45,0.4); }
+.sb-lp-stat__value--green { color: var(--lp-green); text-shadow: 0 0 20px rgba(34,197,94,0.3); }
+
+.sb-lp-stat__label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(168,189,216,0.35);
+}
+
+/* ════════════════════════════════════════════════
+   ROLE CARDS SECTION
+════════════════════════════════════════════════ */
+.sb-lp-roles {
+  position: relative;
+  padding: 7rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Section header */
+.sb-lp-roles__heading {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.sb-lp-roles__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(74,111,165,0.8);
+  margin-bottom: 0.75rem;
+}
+
+.sb-lp-roles__title {
+  font-family: var(--lp-font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  color: var(--lp-white);
+  letter-spacing: 0.03em;
+  line-height: 1;
+}
+
+.sb-lp-roles__title-accent { color: var(--lp-red-400); }
+
+/* Grid */
+.sb-lp-roles__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ── Role Card ───────────────────────────────── */
+.sb-lp-card {
+  position: relative;
+  background: rgba(8, 15, 30, 0.7);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(74, 111, 165, 0.14);
+  border-radius: 18px;
+  padding: 2.25rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: hidden;
+  transition:
+    transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 250ms ease,
+    border-color 250ms ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Corner bracket decoration */
+.sb-lp-card::before,
+.sb-lp-card::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+
+.sb-lp-card::before { top: 12px; right: 12px; border-top: 2px solid var(--lp-red-500); border-right: 2px solid var(--lp-red-500); }
+.sb-lp-card::after  { bottom: 12px; left: 12px; border-bottom: 2px solid var(--lp-red-500); border-left: 2px solid var(--lp-red-500); }
+
+.sb-lp-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(74, 111, 165, 0.35);
+  box-shadow:
+    0 20px 50px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(74,111,165,0.15) inset;
+}
+
+.sb-lp-card:hover::before,
+.sb-lp-card:hover::after { opacity: 1; }
+
+/* Specific card accents */
+.sb-lp-card--patient:hover  { border-color: rgba(232,25,45,0.3); box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(232,25,45,0.07); }
+.sb-lp-card--driver:hover   { border-color: rgba(34,197,94,0.3); box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(34,197,94,0.07); }
+.sb-lp-card--driver::before,
+.sb-lp-card--driver::after  { border-color: var(--lp-green); }
+.sb-lp-card--hospital:hover { border-color: rgba(74,111,165,0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(74,111,165,0.08); }
+.sb-lp-card--hospital::before,
+.sb-lp-card--hospital::after { border-color: rgba(74,111,165,0.8); }
+
+/* Card icon orb */
+.sb-lp-card__icon-orb {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.sb-lp-card--patient  .sb-lp-card__icon-orb { background: rgba(232,25,45,0.1);  border: 1px solid rgba(232,25,45,0.2);  }
+.sb-lp-card--driver   .sb-lp-card__icon-orb { background: rgba(34,197,94,0.1);  border: 1px solid rgba(34,197,94,0.2);  }
+.sb-lp-card--hospital .sb-lp-card__icon-orb { background: rgba(74,111,165,0.1); border: 1px solid rgba(74,111,165,0.2); }
+
+/* Card body */
+.sb-lp-card__body { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+
+.sb-lp-card__label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(168,189,216,0.35);
+}
+
+.sb-lp-card--patient  .sb-lp-card__label { color: rgba(232,25,45,0.6); }
+.sb-lp-card--driver   .sb-lp-card__label { color: rgba(34,197,94,0.6); }
+
+.sb-lp-card__title {
+  font-family: var(--lp-font-syne);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--lp-white);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.sb-lp-card__desc {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: rgba(168,189,216,0.5);
+  line-height: 1.55;
+}
+
+/* Feature pills */
+.sb-lp-card__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.sb-lp-card__pill {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 20px;
+  background: rgba(74,111,165,0.08);
+  border: 1px solid rgba(74,111,165,0.15);
+  color: rgba(168,189,216,0.45);
+}
+
+/* CTA link */
+.sb-lp-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-top: 0.5rem;
+  transition: gap 180ms ease;
+}
+
+.sb-lp-card--patient  .sb-lp-card__cta { color: var(--lp-red-400); }
+.sb-lp-card--driver   .sb-lp-card__cta { color: var(--lp-green); }
+.sb-lp-card--hospital .sb-lp-card__cta { color: rgba(74,111,165,0.9); }
+
+.sb-lp-card:hover .sb-lp-card__cta { gap: 0.7rem; }
+
+.sb-lp-card__cta-arrow { transition: transform 180ms ease; }
+.sb-lp-card:hover .sb-lp-card__cta-arrow { transform: translateX(3px); }
+
+/* ════════════════════════════════════════════════
+   FOOTER BAND
+════════════════════════════════════════════════ */
+.sb-lp-footer-band {
+  border-top: 1px solid rgba(74,111,165,0.12);
+  padding: 2.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.sb-lp-footer-logo {
+  font-family: var(--lp-font-syne);
+  font-size: 1rem;
+  font-weight: 800;
+  color: rgba(168,189,216,0.4);
+  letter-spacing: -0.01em;
+}
+
+.sb-lp-footer-logo span { color: var(--lp-red-500); }
+
+.sb-lp-footer-tagline {
+  font-size: 0.72rem;
+  color: rgba(168,189,216,0.2);
+  letter-spacing: 0.04em;
+}
+
+/* ── Animation Keyframes ─────────────────────── */
+@keyframes sb-lp-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sb-lp-fade-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 768px) {
+  .sb-lp-hero { padding: 5rem 1.5rem 4rem; }
+  .sb-lp-stats { flex-direction: row; }
+  .sb-lp-stat { padding: 0.75rem 1rem; }
+  .sb-lp-roles { padding: 5rem 1.25rem; }
+  .sb-lp-footer-band { justify-content: center; text-align: center; }
+}
+
+@media (max-width: 480px) {
+  .sb-lp-cta { padding: 1rem 2.5rem; font-size: 0.95rem; }
+  .sb-lp-stat__value { font-size: 1.4rem; }
+  .sb-lp-stat { padding: 0.65rem 0.75rem; }
+}
