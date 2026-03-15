@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { socket } from "../../../utils/socket"; // Import your socket
 import "./LookingForDriver.css";
+import { api } from "../../../utils/api";
 
 export interface LookingForDriverProps {}
 
@@ -33,6 +34,18 @@ const LookingForDriver: React.FC<LookingForDriverProps> = () => {
       // Don't disconnect here, we need it for the next page
     };
   }, [navigate, tripId]);
+
+  const handleCancel = async () => {
+    try {
+      await api.post(`/trips/${tripId}/cancel`);
+      // Emit a socket event if you want the backend to know instantly,
+      // or just navigate back home
+      navigate("/user/home", { replace: true });
+    } catch (error) {
+      console.error("Failed to cancel trip:", error);
+      alert("Could not cancel the trip. Please try again.");
+    }
+  };
 
   return (
     <div className="sb-searching">
@@ -100,12 +113,20 @@ const LookingForDriver: React.FC<LookingForDriverProps> = () => {
           </span>
         </div>
 
-        {/* ── Dev Match Panel ── */}
+        {/* ── Cancel Panel ── */}
         <div className="sb-searching__dev-panel">
-          <span className="sb-searching__dev-hint">Match taking too long?</span>
-          <Link to={`/user/track/${tripId}`} className="sb-dev-btn">
-            ⚡ Force Dev Match
-          </Link>
+          <span className="sb-searching__dev-hint">Entered by mistake?</span>
+          <button
+            onClick={handleCancel}
+            className="sb-dev-btn"
+            style={{
+              background: "transparent",
+              color: "#e63946",
+              border: "1px solid #e63946",
+            }}
+          >
+            Cancel Request
+          </button>
         </div>
       </div>
     </div>

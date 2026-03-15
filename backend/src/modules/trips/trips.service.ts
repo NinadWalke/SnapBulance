@@ -206,4 +206,23 @@ export class TripsService {
 
     return trip;
   }
+  async cancelTrip(tripId: string) {
+    try {
+      const trip = await this.prisma.trip.findUnique({ where: { id: tripId } });
+      if (!trip) throw new NotFoundException('Trip not found');
+
+      // Update the trip status to CANCELLED
+      const updatedTrip = await this.prisma.trip.update({
+        where: { id: tripId },
+        data: {
+          status: 'CANCELLED',
+        },
+      });
+
+      return { success: true, message: 'Trip cancelled successfully.', updatedTrip };
+    } catch (e) {
+      console.error(e);
+      throw new InternalServerErrorException('Failed to cancel trip.');
+    }
+  }
 }

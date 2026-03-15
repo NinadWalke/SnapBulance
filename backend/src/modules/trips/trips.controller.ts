@@ -48,4 +48,9 @@ export class TripsController {
   ) {
       return this.tripsService.getDriverTripDetails(tripId, user.id);
   }
+
+  @Post(':tripId/cancel')
+  async cancelTrip(@Param('tripId') tripId: string) { 
+    return this.tripsService.cancelTrip(tripId);
+  }
 }
