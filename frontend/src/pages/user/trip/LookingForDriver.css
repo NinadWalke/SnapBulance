@@ -1,0 +1,316 @@
+/* =============================================
+   SNAPBULANCE — LookingForDriver.css
+   Design Language: Medical-Grade Command Center
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── Page Shell ──────────────────────────────── */
+.sb-searching {
+  min-height: calc(100vh - 68px);
+  background: var(--sb-navy-950, #050d1a);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem 4rem;
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* Slow rotating radial background — gives the sense of scanning */
+.sb-searching::before {
+  content: '';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 900px;
+  height: 900px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    rgba(232, 25, 45, 0.03) 10%,
+    transparent 20%,
+    transparent 100%
+  );
+  border-radius: 50%;
+  animation: sb-radar-rotate 6s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes sb-radar-rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ── Content ─────────────────────────────────── */
+.sb-searching__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  max-width: 480px;
+  width: 100%;
+}
+
+/* ── Header ──────────────────────────────────── */
+.sb-searching__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 3rem;
+}
+
+.sb-searching__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(232, 25, 45, 0.8);
+  padding: 0.22rem 0.7rem;
+  background: rgba(232, 25, 45, 0.08);
+  border: 1px solid rgba(232, 25, 45, 0.2);
+  border-radius: 20px;
+}
+
+.sb-searching__eyebrow-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--sb-red-500, #e8192d);
+  box-shadow: 0 0 6px rgba(232, 25, 45, 0.8);
+  animation: sb-blink 1s ease-in-out infinite;
+}
+
+@keyframes sb-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+.sb-searching__title {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--sb-white, #f5f8fc);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.sb-searching__trip-id {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(168, 189, 216, 0.25);
+  font-family: 'Courier New', monospace;
+}
+
+/* ── Sonar Pulse Rig ─────────────────────────── */
+.sb-sonar {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3rem;
+  flex-shrink: 0;
+}
+
+/* Three expanding rings */
+.sb-sonar__ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(232, 25, 45, 0.5);
+  animation: sb-sonar-expand 2.4s ease-out infinite;
+}
+
+.sb-sonar__ring--1 {
+  width: 80px;
+  height: 80px;
+  animation-delay: 0s;
+}
+
+.sb-sonar__ring--2 {
+  width: 80px;
+  height: 80px;
+  animation-delay: 0.7s;
+}
+
+.sb-sonar__ring--3 {
+  width: 80px;
+  height: 80px;
+  animation-delay: 1.4s;
+}
+
+@keyframes sb-sonar-expand {
+  0%   { transform: scale(1);   opacity: 0.8; border-color: rgba(232, 25, 45, 0.6); }
+  100% { transform: scale(2.5); opacity: 0;   border-color: rgba(232, 25, 45, 0); }
+}
+
+/* Core orb */
+.sb-sonar__core {
+  position: relative;
+  z-index: 2;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b0000 0%, #c8102e 50%, #e8192d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.1rem;
+  box-shadow:
+    0 0 0 2px rgba(232, 25, 45, 0.3),
+    0 0 30px rgba(232, 25, 45, 0.4),
+    0 8px 32px rgba(0, 0, 0, 0.6);
+  animation: sb-core-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes sb-core-breathe {
+  0%, 100% { transform: scale(0.95); box-shadow: 0 0 0 2px rgba(232,25,45,0.3), 0 0 20px rgba(232,25,45,0.3), 0 8px 32px rgba(0,0,0,0.6); }
+  50%       { transform: scale(1.02); box-shadow: 0 0 0 4px rgba(232,25,45,0.15), 0 0 40px rgba(232,25,45,0.5), 0 8px 32px rgba(0,0,0,0.6); }
+}
+
+/* ── Status Ticker ───────────────────────────── */
+.sb-searching__status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 3rem;
+}
+
+.sb-searching__status-line {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(168, 189, 216, 0.55);
+}
+
+/* Animated step dots */
+.sb-searching__steps {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sb-searching__step {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(74, 111, 165, 0.3);
+}
+
+.sb-searching__step--done {
+  background: #22c55e;
+  box-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
+}
+
+.sb-searching__step--active {
+  background: var(--sb-red-500, #e8192d);
+  box-shadow: 0 0 5px rgba(232, 25, 45, 0.6);
+  animation: sb-blink 1s ease-in-out infinite;
+}
+
+.sb-searching__status-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: rgba(168, 189, 216, 0.4);
+}
+
+/* Typing / ellipsis animation */
+.sb-searching__ellipsis::after {
+  content: '';
+  display: inline-block;
+  animation: sb-ellipsis 1.6s steps(4, end) infinite;
+  width: 1.2em;
+  text-align: left;
+}
+
+@keyframes sb-ellipsis {
+  0%   { content: ''; }
+  25%  { content: '.'; }
+  50%  { content: '..'; }
+  75%  { content: '...'; }
+  100% { content: ''; }
+}
+
+/* ── Dev Match Panel ─────────────────────────── */
+.sb-searching__dev-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.25rem 1.75rem;
+  background: rgba(8, 15, 30, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(74, 111, 165, 0.12);
+  border-radius: 12px;
+  width: 100%;
+}
+
+.sb-searching__dev-hint {
+  font-size: 0.75rem;
+  color: rgba(168, 189, 216, 0.3);
+  letter-spacing: 0.02em;
+}
+
+.sb-dev-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1.1rem;
+  background: transparent;
+  border: 1px solid rgba(74, 111, 165, 0.25);
+  border-radius: 7px;
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(168, 189, 216, 0.5);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sb-dev-btn:hover {
+  color: var(--sb-white, #f5f8fc);
+  border-color: rgba(74, 111, 165, 0.45);
+  background: rgba(74, 111, 165, 0.08);
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 480px) {
+  .sb-searching__title {
+    font-size: 1.55rem;
+  }
+
+  .sb-sonar {
+    width: 160px;
+    height: 160px;
+  }
+
+  .sb-sonar__core {
+    width: 72px;
+    height: 72px;
+    font-size: 1.7rem;
+  }
+}

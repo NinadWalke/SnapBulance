@@ -1,0 +1,418 @@
+/* =============================================
+   SNAPBULANCE — RideDetail.css
+   Design Language: Medical-Grade Command Center
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── Page Shell ──────────────────────────────── */
+.sb-detail {
+  min-height: calc(100vh - 68px);
+  background: var(--sb-navy-950, #050d1a);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2.5rem 1.5rem 4rem;
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+  position: relative;
+  overflow: hidden;
+}
+
+.sb-detail::before {
+  content: '';
+  position: fixed;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(74, 111, 165, 0.06) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Loading ─────────────────────────────────── */
+.sb-detail__loading {
+  min-height: calc(100vh - 68px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sb-navy-950, #050d1a);
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+}
+
+.sb-detail__loading-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sb-detail__loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(74, 111, 165, 0.2);
+  border-top-color: var(--sb-red-500, #e8192d);
+  border-radius: 50%;
+  animation: sb-spin 0.8s linear infinite;
+}
+
+@keyframes sb-spin {
+  to { transform: rotate(360deg); }
+}
+
+.sb-detail__loading-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.4);
+}
+
+/* ── Content Card ────────────────────────────── */
+.sb-detail__card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 620px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ── Back Button ─────────────────────────────── */
+.sb-detail__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(74, 111, 165, 0.8);
+  cursor: pointer;
+  transition: color 160ms ease, gap 160ms ease;
+  width: fit-content;
+  margin-bottom: 0.25rem;
+}
+
+.sb-detail__back:hover {
+  color: var(--sb-white, #f5f8fc);
+  gap: 0.6rem;
+}
+
+.sb-detail__back-arrow {
+  font-size: 1rem;
+  transition: transform 160ms ease;
+}
+
+.sb-detail__back:hover .sb-detail__back-arrow {
+  transform: translateX(-3px);
+}
+
+/* ── Page Header ─────────────────────────────── */
+.sb-detail__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sb-detail__title {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--sb-white, #f5f8fc);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.sb-detail__trip-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(168, 189, 216, 0.3);
+  font-variant-numeric: tabular-nums;
+  font-family: 'Courier New', monospace;
+}
+
+/* ── Info Panels ─────────────────────────────── */
+.sb-detail__panel {
+  background: rgba(8, 15, 30, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(74, 111, 165, 0.15);
+  border-radius: 14px;
+  overflow: hidden;
+  animation: sb-panel-in 300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.sb-detail__panel:nth-child(1) { animation-delay: 0ms; }
+.sb-detail__panel:nth-child(2) { animation-delay: 60ms; }
+.sb-detail__panel:nth-child(3) { animation-delay: 120ms; }
+
+@keyframes sb-panel-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Responder panel — blue tint */
+.sb-detail__panel--responder {
+  border-color: rgba(74, 111, 165, 0.28);
+  background: rgba(74, 111, 165, 0.04);
+}
+
+/* Medical report panel — amber tint */
+.sb-detail__panel--medical {
+  border-color: rgba(251, 146, 60, 0.25);
+  background: rgba(251, 146, 60, 0.03);
+}
+
+/* ── Panel Header ────────────────────────────── */
+.sb-detail__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem 0.85rem;
+  border-bottom: 1px solid rgba(74, 111, 165, 0.1);
+}
+
+.sb-detail__panel--responder .sb-detail__panel-header {
+  border-bottom-color: rgba(74, 111, 165, 0.15);
+}
+
+.sb-detail__panel--medical .sb-detail__panel-header {
+  border-bottom-color: rgba(251, 146, 60, 0.12);
+}
+
+.sb-detail__panel-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.sb-detail__panel-icon {
+  font-size: 0.9rem;
+}
+
+.sb-detail__panel-title {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.45);
+  margin: 0;
+}
+
+.sb-detail__panel--responder .sb-detail__panel-title {
+  color: rgba(74, 111, 165, 0.8);
+}
+
+.sb-detail__panel--medical .sb-detail__panel-title {
+  color: rgba(251, 146, 60, 0.7);
+}
+
+/* ── Status Badge (reused from RideHistory) ──── */
+.sb-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.26rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sb-status-badge__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sb-status-badge--completed {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  color: #4ade80;
+}
+.sb-status-badge--completed .sb-status-badge__dot {
+  background: #4ade80;
+  box-shadow: 0 0 4px rgba(74, 222, 128, 0.6);
+}
+
+.sb-status-badge--cancelled {
+  background: rgba(232, 25, 45, 0.1);
+  border: 1px solid rgba(232, 25, 45, 0.25);
+  color: var(--sb-red-400, #ff2d42);
+}
+.sb-status-badge--cancelled .sb-status-badge__dot {
+  background: var(--sb-red-400, #ff2d42);
+  box-shadow: 0 0 4px rgba(255, 45, 66, 0.6);
+}
+
+.sb-status-badge--in-progress {
+  background: rgba(251, 146, 60, 0.1);
+  border: 1px solid rgba(251, 146, 60, 0.25);
+  color: #fb923c;
+}
+.sb-status-badge--in-progress .sb-status-badge__dot {
+  background: #fb923c;
+  animation: sb-blink 1.6s ease-in-out infinite;
+}
+
+.sb-status-badge--default {
+  background: rgba(74, 111, 165, 0.1);
+  border: 1px solid rgba(74, 111, 165, 0.2);
+  color: rgba(168, 189, 216, 0.7);
+}
+.sb-status-badge--default .sb-status-badge__dot {
+  background: rgba(168, 189, 216, 0.5);
+}
+
+@keyframes sb-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ── Panel Body ──────────────────────────────── */
+.sb-detail__panel-body {
+  padding: 0.5rem 0 0.75rem;
+}
+
+/* ── Data Row ────────────────────────────────── */
+.sb-detail__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0.7rem 1.5rem;
+  border-bottom: 1px solid rgba(74, 111, 165, 0.06);
+  transition: background 150ms ease;
+}
+
+.sb-detail__panel--medical .sb-detail__row {
+  border-bottom-color: rgba(251, 146, 60, 0.05);
+}
+
+.sb-detail__row:last-child {
+  border-bottom: none;
+}
+
+.sb-detail__row:hover {
+  background: rgba(74, 111, 165, 0.04);
+}
+
+.sb-detail__row-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.38);
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-top: 0.1rem;
+  min-width: 110px;
+}
+
+.sb-detail__row-value {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--sb-white, #f5f8fc);
+  text-align: right;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.sb-detail__row-value--muted {
+  color: rgba(168, 189, 216, 0.35);
+  font-style: italic;
+  font-weight: 300;
+}
+
+.sb-detail__row-value--mono {
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  color: rgba(168, 189, 216, 0.65);
+}
+
+/* Severity chip */
+.sb-severity-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.22rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sb-severity-chip--critical {
+  background: rgba(232, 25, 45, 0.12);
+  border: 1px solid rgba(232, 25, 45, 0.3);
+  color: var(--sb-red-400, #ff2d42);
+}
+
+.sb-severity-chip--high {
+  background: rgba(251, 146, 60, 0.12);
+  border: 1px solid rgba(251, 146, 60, 0.3);
+  color: #fb923c;
+}
+
+.sb-severity-chip--moderate {
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.25);
+  color: #fbbf24;
+}
+
+.sb-severity-chip--low {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  color: #4ade80;
+}
+
+.sb-severity-chip--default {
+  background: rgba(74, 111, 165, 0.1);
+  border: 1px solid rgba(74, 111, 165, 0.2);
+  color: rgba(168, 189, 216, 0.7);
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 480px) {
+  .sb-detail {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .sb-detail__title {
+    font-size: 1.55rem;
+  }
+
+  .sb-detail__row {
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .sb-detail__row-label {
+    min-width: unset;
+  }
+
+  .sb-detail__row-value {
+    text-align: left;
+  }
+
+  .sb-detail__panel-header {
+    padding: 0.9rem 1.25rem 0.75rem;
+  }
+}

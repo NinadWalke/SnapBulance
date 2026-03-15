@@ -1,0 +1,222 @@
+/* =============================================
+   SNAPBULANCE — Footer.css
+   Design Language: Medical-Grade Command Center
+   Matches Navbar.css design system exactly
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── Footer Shell ────────────────────────────── */
+.sb-footer {
+  position: relative;
+  width: 100%;
+  background: var(--sb-navy-950, #050d1a);
+  border-top: 1px solid var(--sb-glass-border, rgba(74, 111, 165, 0.22));
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+  overflow: hidden;
+  margin-top: auto;
+}
+
+/* Top accent line — mirrors navbar */
+.sb-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(232, 25, 45, 0.5) 30%,
+    rgba(232, 25, 45, 0.8) 50%,
+    rgba(232, 25, 45, 0.5) 70%,
+    transparent 100%
+  );
+}
+
+/* Subtle radial glow from center-bottom */
+.sb-footer::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 120px;
+  background: radial-gradient(ellipse, rgba(200, 16, 46, 0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Inner Layout ────────────────────────────── */
+.sb-footer__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 2rem;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* ── Brand Block (left) ──────────────────────── */
+.sb-footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sb-footer__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  text-decoration: none;
+  width: fit-content;
+}
+
+.sb-footer__logo-icon {
+  font-size: 1.15rem;
+  filter: drop-shadow(0 0 5px rgba(232, 25, 45, 0.4));
+}
+
+.sb-footer__logo-text {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--sb-white, #f5f8fc);
+}
+
+.sb-footer__logo-text span {
+  color: var(--sb-red-500, #e8192d);
+  text-shadow: 0 0 14px rgba(232, 25, 45, 0.35);
+}
+
+.sb-footer__tagline {
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.5);
+  padding-left: 1.6rem; /* aligns under logo text */
+}
+
+/* ── Center Block ────────────────────────────── */
+.sb-footer__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* ECG / Pulse line SVG decoration */
+.sb-footer__pulse {
+  width: 120px;
+  height: 28px;
+  opacity: 0.35;
+}
+
+.sb-footer__pulse path {
+  stroke: var(--sb-red-500, #e8192d);
+  stroke-width: 1.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: sb-ecg-draw 3s ease-in-out infinite;
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+}
+
+@keyframes sb-ecg-draw {
+  0%   { stroke-dashoffset: 300; opacity: 0; }
+  15%  { opacity: 1; }
+  60%  { stroke-dashoffset: 0;   opacity: 1; }
+  85%  { stroke-dashoffset: 0;   opacity: 0.4; }
+  100% { stroke-dashoffset: 300; opacity: 0; }
+}
+
+.sb-footer__copyright {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: rgba(168, 189, 216, 0.45);
+  letter-spacing: 0.03em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.sb-footer__copyright strong {
+  color: rgba(168, 189, 216, 0.7);
+  font-weight: 500;
+}
+
+/* ── Status Block (right) ────────────────────── */
+.sb-footer__status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.sb-footer__status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.28rem 0.75rem;
+  background: rgba(74, 111, 165, 0.08);
+  border: 1px solid rgba(74, 111, 165, 0.18);
+  border-radius: 20px;
+}
+
+.sb-footer__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+  animation: sb-status-blink 2.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes sb-status-blink {
+  0%, 100% { opacity: 1;   box-shadow: 0 0 6px rgba(34, 197, 94, 0.7); }
+  50%       { opacity: 0.5; box-shadow: 0 0 2px rgba(34, 197, 94, 0.3); }
+}
+
+.sb-footer__status-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.55);
+}
+
+.sb-footer__build {
+  font-size: 0.68rem;
+  color: rgba(168, 189, 216, 0.28);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 640px) {
+  .sb-footer__inner {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    justify-items: center;
+    text-align: center;
+    padding: 2rem 1.25rem 1.75rem;
+    gap: 1.25rem;
+  }
+
+  .sb-footer__brand {
+    align-items: center;
+  }
+
+  .sb-footer__tagline {
+    padding-left: 0;
+  }
+
+  .sb-footer__status {
+    align-items: center;
+  }
+}

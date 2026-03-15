@@ -1,0 +1,546 @@
+/* =============================================
+   SNAPBULANCE — LiveTripTracking.css
+   Design Language: Medical-Grade Command Center
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── Root Layout ─────────────────────────────── */
+.sb-tracking {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh; /* dynamic viewport height — handles mobile browser chrome */
+  max-width: 600px;
+  margin: 0 auto;
+  background: var(--sb-navy-950, #050d1a);
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+  position: relative;
+  overflow: hidden;
+  /* Subtle border on desktop to frame the mobile-style view */
+  box-shadow: 0 0 0 1px rgba(74, 111, 165, 0.15), 0 0 60px rgba(0,0,0,0.6);
+  margin-bottom: 50px;
+  margin-top: 50px;
+  padding: 1rem;
+  border-radius: 15px;
+}
+
+/* ── Map Area ────────────────────────────────── */
+.sb-tracking__map-area {
+  flex: 2;
+  position: relative;
+  background: var(--sb-navy-800, #0d1829);
+  overflow: hidden;
+  transition: flex 300ms ease;
+}
+
+.sb-tracking__map-area--hidden {
+  flex: 0;
+  overflow: hidden;
+}
+
+/* Trip ID HUD overlay */
+.sb-tracking__hud-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(5, 13, 26, 0.82);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(74, 111, 165, 0.25);
+  border-radius: 20px;
+  padding: 0.28rem 0.8rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: rgba(168, 189, 216, 0.5);
+  font-family: 'Courier New', monospace;
+  pointer-events: none;
+}
+
+.sb-tracking__hud-badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 5px rgba(34, 197, 94, 0.7);
+  animation: sb-live-blink 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes sb-live-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* Map loading placeholder */
+.sb-tracking__map-loading {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.sb-tracking__map-loading-spinner {
+  width: 30px;
+  height: 30px;
+  border: 2px solid rgba(74, 111, 165, 0.2);
+  border-top-color: var(--sb-red-500, #e8192d);
+  border-radius: 50%;
+  animation: sb-spin 0.8s linear infinite;
+}
+
+@keyframes sb-spin {
+  to { transform: rotate(360deg); }
+}
+
+.sb-tracking__map-loading-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.3);
+}
+
+/* ── Chat Panel ──────────────────────────────── */
+.sb-tracking__chat {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  background: var(--sb-navy-900, #080f1e);
+  overflow: hidden;
+}
+
+/* Chat header */
+.sb-tracking__chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.25rem;
+  background: rgba(8, 15, 30, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(74, 111, 165, 0.15);
+  flex-shrink: 0;
+}
+
+.sb-tracking__chat-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.sb-tracking__chat-title-text {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--sb-white, #f5f8fc);
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+.sb-tracking__chat-online {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: #4ade80;
+}
+
+.sb-tracking__chat-online-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 5px rgba(34, 197, 94, 0.6);
+}
+
+.sb-tracking__chat-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(74, 111, 165, 0.1);
+  border: 1px solid rgba(74, 111, 165, 0.2);
+  color: rgba(168, 189, 216, 0.6);
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 150ms ease, color 150ms ease;
+  flex-shrink: 0;
+}
+
+.sb-tracking__chat-close:hover {
+  background: rgba(74, 111, 165, 0.2);
+  color: var(--sb-white, #f5f8fc);
+}
+
+/* Message list */
+.sb-tracking__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(74, 111, 165, 0.2) transparent;
+}
+
+.sb-tracking__messages::-webkit-scrollbar {
+  width: 4px;
+}
+.sb-tracking__messages::-webkit-scrollbar-thumb {
+  background: rgba(74, 111, 165, 0.2);
+  border-radius: 2px;
+}
+
+/* Empty chat */
+.sb-tracking__chat-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex: 1;
+  padding: 2rem;
+  text-align: center;
+}
+
+.sb-tracking__chat-empty-icon {
+  font-size: 2rem;
+  opacity: 0.25;
+}
+
+.sb-tracking__chat-empty-text {
+  font-size: 0.8rem;
+  color: rgba(168, 189, 216, 0.3);
+  letter-spacing: 0.02em;
+}
+
+/* Message bubble */
+.sb-tracking__msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 78%;
+  gap: 0.2rem;
+  animation: sb-msg-in 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes sb-msg-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sb-tracking__msg--me {
+  align-self: flex-end;
+}
+
+.sb-tracking__msg--them {
+  align-self: flex-start;
+}
+
+.sb-tracking__msg-sender {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: rgba(168, 189, 216, 0.35);
+  letter-spacing: 0.03em;
+}
+
+.sb-tracking__msg--me .sb-tracking__msg-sender {
+  text-align: right;
+}
+
+.sb-tracking__msg-bubble {
+  padding: 0.65rem 0.9rem;
+  border-radius: 14px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.sb-tracking__msg--me .sb-tracking__msg-bubble {
+  background: linear-gradient(135deg, #c8102e, #e8192d);
+  color: #fff;
+  border-bottom-right-radius: 3px;
+  box-shadow: 0 2px 8px rgba(200, 16, 46, 0.3);
+}
+
+.sb-tracking__msg--them .sb-tracking__msg-bubble {
+  background: rgba(74, 111, 165, 0.12);
+  border: 1px solid rgba(74, 111, 165, 0.18);
+  color: rgba(245, 248, 252, 0.85);
+  border-bottom-left-radius: 3px;
+}
+
+/* Chat input */
+.sb-tracking__chat-form {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  background: rgba(5, 13, 26, 0.9);
+  border-top: 1px solid rgba(74, 111, 165, 0.12);
+  flex-shrink: 0;
+}
+
+.sb-tracking__chat-input {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  background: rgba(13, 24, 41, 0.9);
+  border: 1px solid rgba(74, 111, 165, 0.2);
+  border-radius: 20px;
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+  font-size: 0.875rem;
+  color: var(--sb-white, #f5f8fc);
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+  -webkit-appearance: none;
+}
+
+.sb-tracking__chat-input::placeholder {
+  color: rgba(168, 189, 216, 0.2);
+}
+
+.sb-tracking__chat-input:focus {
+  border-color: rgba(74, 111, 165, 0.45);
+  box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.08);
+}
+
+.sb-tracking__chat-send {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c8102e, #e8192d);
+  border: none;
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(200, 16, 46, 0.35);
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.sb-tracking__chat-send:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 14px rgba(200, 16, 46, 0.5);
+}
+
+.sb-tracking__chat-send:active {
+  transform: scale(0.93);
+}
+
+/* ── Bottom Sheet ────────────────────────────── */
+.sb-tracking__sheet {
+  flex-shrink: 0;
+  background: rgba(8, 15, 30, 0.97);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(74, 111, 165, 0.18);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+  padding: 1.25rem 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  z-index: 10;
+}
+
+/* Sheet top accent */
+.sb-tracking__sheet::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(232, 25, 45, 0.4) 30%,
+    rgba(232, 25, 45, 0.4) 70%,
+    transparent
+  );
+}
+
+/* Status row */
+.sb-tracking__status-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sb-tracking__status-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.sb-tracking__status-eyebrow {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.35);
+}
+
+.sb-tracking__status-message {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #4ade80;
+  letter-spacing: -0.01em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.sb-tracking__eta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--sb-red-400, #ff2d42);
+  margin-top: 0.1rem;
+}
+
+/* Ambulance info */
+.sb-tracking__ambulance {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.sb-tracking__plate {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.6rem;
+  background: rgba(74, 111, 165, 0.1);
+  border: 1px solid rgba(74, 111, 165, 0.25);
+  border-radius: 5px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(168, 189, 216, 0.8);
+}
+
+.sb-tracking__ambulance-type {
+  font-size: 0.72rem;
+  color: rgba(168, 189, 216, 0.35);
+  letter-spacing: 0.03em;
+}
+
+/* ── Sheet Action Buttons ────────────────────── */
+.sb-tracking__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.sb-tracking__btn {
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    background 150ms ease,
+    border-color 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Chat / Map toggle */
+.sb-tracking__btn--chat {
+  background: rgba(74, 111, 165, 0.08);
+  border: 1px solid rgba(74, 111, 165, 0.25);
+  color: rgba(168, 189, 216, 0.75);
+}
+
+.sb-tracking__btn--chat:hover {
+  background: rgba(74, 111, 165, 0.15);
+  border-color: rgba(74, 111, 165, 0.45);
+  color: var(--sb-white, #f5f8fc);
+  transform: translateY(-1px);
+}
+
+.sb-tracking__btn--chat--active {
+  background: rgba(74, 111, 165, 0.15);
+  border-color: rgba(74, 111, 165, 0.4);
+  color: var(--sb-white, #f5f8fc);
+}
+
+/* Share status — red CTA */
+.sb-tracking__btn--share {
+  background: linear-gradient(135deg, #c8102e, #e8192d);
+  color: #fff;
+  border: none;
+  box-shadow:
+    0 3px 14px rgba(200, 16, 46, 0.4),
+    0 1px 0 rgba(255, 255, 255, 0.12) inset;
+}
+
+.sb-tracking__btn--share:hover {
+  background: linear-gradient(135deg, #d4152f, #f01e33);
+  box-shadow: 0 6px 22px rgba(200, 16, 46, 0.55);
+  transform: translateY(-1px);
+}
+
+.sb-tracking__btn--share:active {
+  transform: scale(0.975);
+}
+
+/* Unread chat badge */
+.sb-tracking__chat-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background: var(--sb-red-500, #e8192d);
+  border-radius: 9px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: white;
+  box-shadow: 0 0 6px rgba(232, 25, 45, 0.5);
+  animation: sb-badge-pop 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes sb-badge-pop {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 480px) {
+  .sb-tracking__sheet {
+    padding: 1rem 1rem 1.25rem;
+  }
+
+  .sb-tracking__status-message {
+    font-size: 0.95rem;
+  }
+}

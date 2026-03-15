@@ -1,0 +1,496 @@
+/* =============================================
+   SNAPBULANCE — Register.css
+   Design Language: Medical-Grade Command Center
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap');
+
+/* ── Page Shell ──────────────────────────────── */
+.sb-register {
+  min-height: 100vh;
+  background: var(--sb-navy-950, #050d1a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Grid background */
+.sb-register__grid {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.025;
+  background-image:
+    linear-gradient(rgba(74, 111, 165, 1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74, 111, 165, 1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 40%, transparent 100%);
+}
+
+/* Ambient glows */
+.sb-register__glow-left {
+  position: fixed;
+  top: 0; left: -200px; bottom: 0;
+  width: 600px;
+  background: radial-gradient(ellipse at left center, rgba(74, 111, 165, 0.06) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sb-register__glow-right {
+  position: fixed;
+  top: 0; right: -200px; bottom: 0;
+  width: 600px;
+  background: radial-gradient(ellipse at right center, rgba(232, 25, 45, 0.05) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Two-panel layout ────────────────────────── */
+.sb-register__layout {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 960px;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(74, 111, 165, 0.18),
+    0 30px 80px rgba(0,0,0,0.7),
+    0 8px 24px rgba(0,0,0,0.4);
+  animation: sb-reg-in 600ms cubic-bezier(0.4,0,0.2,1) both;
+}
+
+@keyframes sb-reg-in {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Left Brand Panel ────────────────────────── */
+.sb-register__brand {
+  position: relative;
+  background: linear-gradient(160deg, #07101f 0%, #0b1a30 60%, #080f1e 100%);
+  border-right: 1px solid rgba(74, 111, 165, 0.15);
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.sb-register__brand::before {
+  content: '';
+  position: absolute;
+  bottom: -40px; left: -40px;
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(74,111,165,0.07) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.sb-register__brand-top {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.sb-register__brand-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3.6rem;
+  line-height: 0.88;
+  letter-spacing: 0.03em;
+  color: var(--sb-white, #f5f8fc);
+}
+
+.sb-register__brand-name span { color: var(--sb-red-500, #e8192d); text-shadow: 0 0 40px rgba(232,25,45,0.45); }
+
+.sb-register__brand-tagline {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: rgba(168, 189, 216, 0.38);
+  letter-spacing: 0.04em;
+  line-height: 1.65;
+  max-width: 200px;
+}
+
+/* Role preview pills on brand panel */
+.sb-register__brand-roles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: 0.5rem;
+}
+
+.sb-register__brand-role {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 8px;
+  background: rgba(8, 15, 30, 0.5);
+  border: 1px solid rgba(74, 111, 165, 0.1);
+  transition: border-color 300ms ease, background 300ms ease;
+}
+
+.sb-register__brand-role--active-USER     { border-color: rgba(232,25,45,0.3);  background: rgba(232,25,45,0.06);  }
+.sb-register__brand-role--active-DRIVER   { border-color: rgba(34,197,94,0.3);  background: rgba(34,197,94,0.06);  }
+.sb-register__brand-role--active-HOSPITAL_ADMIN { border-color: rgba(74,111,165,0.35); background: rgba(74,111,165,0.07); }
+
+.sb-register__brand-role-icon { font-size: 1rem; }
+
+.sb-register__brand-role-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+
+.sb-register__brand-role-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(168,189,216,0.6);
+  transition: color 300ms ease;
+}
+
+.sb-register__brand-role--active-USER     .sb-register__brand-role-name { color: rgba(232,25,45,0.9); }
+.sb-register__brand-role--active-DRIVER   .sb-register__brand-role-name { color: rgba(74,222,128,0.9); }
+.sb-register__brand-role--active-HOSPITAL_ADMIN .sb-register__brand-role-name { color: rgba(168,189,216,0.9); }
+
+.sb-register__brand-role-desc {
+  font-size: 0.62rem;
+  color: rgba(168,189,216,0.25);
+  letter-spacing: 0.02em;
+}
+
+.sb-register__brand-bottom {
+  font-size: 0.62rem;
+  color: rgba(168,189,216,0.18);
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}
+
+/* ── Right Form Panel ────────────────────────── */
+.sb-register__form-panel {
+  background: rgba(8, 15, 30, 0.97);
+  padding: 2.5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+}
+
+/* Form header */
+.sb-register__form-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 1.5rem;
+}
+
+.sb-register__form-eyebrow {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(74,111,165,0.7);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sb-register__form-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--sb-white, #f5f8fc);
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.sb-register__form-subtitle {
+  font-size: 0.82rem;
+  color: rgba(168,189,216,0.35);
+  margin: 0;
+}
+
+/* ── Role Selector ───────────────────────────── */
+.sb-register__roles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.sb-register__role-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.7rem 0.5rem;
+  background: rgba(5, 13, 26, 0.7);
+  border: 1px solid rgba(74, 111, 165, 0.15);
+  border-radius: 10px;
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+  cursor: pointer;
+  transition: border-color 200ms ease, background 200ms ease, transform 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sb-register__role-btn:hover {
+  border-color: rgba(74, 111, 165, 0.35);
+  transform: translateY(-1px);
+}
+
+.sb-register__role-btn--active-USER {
+  border-color: rgba(232,25,45,0.45);
+  background: rgba(232,25,45,0.07);
+  box-shadow: 0 0 14px rgba(232,25,45,0.1);
+}
+
+.sb-register__role-btn--active-DRIVER {
+  border-color: rgba(34,197,94,0.4);
+  background: rgba(34,197,94,0.06);
+  box-shadow: 0 0 14px rgba(34,197,94,0.1);
+}
+
+.sb-register__role-btn--active-HOSPITAL_ADMIN {
+  border-color: rgba(74,111,165,0.5);
+  background: rgba(74,111,165,0.1);
+  box-shadow: 0 0 14px rgba(74,111,165,0.12);
+}
+
+.sb-register__role-icon { font-size: 1.3rem; line-height: 1; }
+
+.sb-register__role-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(168,189,216,0.4);
+  transition: color 200ms ease;
+}
+
+.sb-register__role-btn--active-USER         .sb-register__role-label { color: rgba(232,25,45,0.8); }
+.sb-register__role-btn--active-DRIVER       .sb-register__role-label { color: rgba(74,222,128,0.8); }
+.sb-register__role-btn--active-HOSPITAL_ADMIN .sb-register__role-label { color: rgba(168,189,216,0.85); }
+
+/* ── Error toast ─────────────────────────────── */
+.sb-register__error {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1rem;
+  background: rgba(232,25,45,0.09);
+  border: 1px solid rgba(232,25,45,0.28);
+  border-radius: 9px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: rgba(255,100,115,0.9);
+  margin-bottom: 1rem;
+  animation: sb-toast-in 250ms cubic-bezier(0.4,0,0.2,1);
+}
+
+@keyframes sb-toast-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Form ────────────────────────────────────── */
+.sb-register__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.sb-register__row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.sb-register__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sb-register__label {
+  font-size: 0.67rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(168,189,216,0.38);
+}
+
+.sb-register__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem 1rem;
+  background: rgba(5, 13, 26, 0.8);
+  border: 1px solid rgba(74, 111, 165, 0.18);
+  border-radius: 9px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  color: var(--sb-white, #f5f8fc);
+  outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+  -webkit-appearance: none;
+}
+
+.sb-register__input::placeholder { color: rgba(168,189,216,0.18); font-weight: 300; }
+
+.sb-register__input:focus {
+  border-color: rgba(74,111,165,0.55);
+  box-shadow: 0 0 0 3px rgba(74,111,165,0.1);
+}
+
+/* ── Submit Button ───────────────────────────── */
+.sb-register__submit {
+  width: 100%;
+  padding: 0.95rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border: none;
+  border-radius: 9px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset;
+  -webkit-tap-highlight-color: transparent;
+  color: white;
+}
+
+.sb-register__submit--USER {
+  background: linear-gradient(135deg, #c8102e, #e8192d);
+  box-shadow: 0 4px 18px rgba(200,16,46,0.45), 0 1px 0 rgba(255,255,255,0.12) inset;
+}
+
+.sb-register__submit--DRIVER {
+  background: linear-gradient(135deg, #15803d, #22c55e);
+  box-shadow: 0 4px 18px rgba(34,197,94,0.4), 0 1px 0 rgba(255,255,255,0.12) inset;
+}
+
+.sb-register__submit--HOSPITAL_ADMIN {
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+  box-shadow: 0 4px 18px rgba(59,130,246,0.4), 0 1px 0 rgba(255,255,255,0.12) inset;
+}
+
+/* Shimmer */
+.sb-register__submit::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transform: skewX(-20deg);
+  transition: left 600ms ease;
+}
+
+.sb-register__submit:not(:disabled):hover::before { left: 160%; }
+.sb-register__submit:not(:disabled):hover { transform: translateY(-2px); filter: brightness(1.08); }
+.sb-register__submit:not(:disabled):active { transform: scale(0.975); }
+
+.sb-register__submit:disabled {
+  background: linear-gradient(135deg, #1a2030, #222d3f);
+  color: rgba(255,255,255,0.25);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Spinner */
+.sb-register__spinner {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.sb-register__spinner span {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  animation: sb-dot-bounce 1s ease-in-out infinite;
+}
+
+.sb-register__spinner span:nth-child(2) { animation-delay: 0.15s; }
+.sb-register__spinner span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes sb-dot-bounce {
+  0%, 100% { transform: translateY(0);    opacity: 0.4; }
+  50%       { transform: translateY(-4px); opacity: 1; }
+}
+
+/* ── Login Link ──────────────────────────────── */
+.sb-register__divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+
+.sb-register__divider-line {
+  flex: 1; height: 1px;
+  background: rgba(74,111,165,0.1);
+}
+
+.sb-register__divider-text {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(168,189,216,0.2);
+  white-space: nowrap;
+}
+
+.sb-register__login {
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(168,189,216,0.35);
+  letter-spacing: 0.02em;
+}
+
+.sb-register__login a {
+  color: rgba(74,111,165,0.85);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 150ms ease;
+}
+
+.sb-register__login a:hover { color: var(--sb-white, #f5f8fc); }
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 680px) {
+  .sb-register { padding: 1.5rem 1rem; align-items: flex-start; padding-top: 2rem; }
+
+  .sb-register__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sb-register__brand {
+    padding: 2rem 1.75rem 1.5rem;
+    border-right: none;
+    border-bottom: 1px solid rgba(74,111,165,0.15);
+  }
+
+  .sb-register__brand-name    { font-size: 2.6rem; }
+  .sb-register__brand-roles   { flex-direction: row; flex-wrap: wrap; }
+  .sb-register__brand-bottom  { display: none; }
+
+  .sb-register__form-panel { padding: 2rem 1.75rem; }
+
+  .sb-register__row-2col { grid-template-columns: 1fr; }
+}

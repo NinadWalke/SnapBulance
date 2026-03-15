@@ -1,0 +1,565 @@
+/* =============================================
+   SNAPBULANCE — CfrDashboard.css
+   Design Language: Medical-Grade Command Center
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── Page Shell ──────────────────────────────── */
+.sb-cfr {
+  position: relative;
+  min-height: calc(100vh - 68px);
+  background: var(--sb-navy-950, #050d1a);
+  font-family: var(--sb-font-body, 'DM Sans', sans-serif);
+  overflow-x: hidden;
+}
+
+.sb-cfr__bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(74, 111, 165, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74, 111, 165, 0.04) 1px, transparent 1px);
+  background-size: 52px 52px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sb-cfr__page {
+  position: relative;
+  z-index: 1;
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+/* ── Locating Loading ────────────────────────── */
+.sb-cfr__locating {
+  min-height: calc(100vh - 68px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sb-navy-950, #050d1a);
+}
+
+.sb-cfr__locating-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sb-cfr__spinner {
+  width: 34px;
+  height: 34px;
+  border: 2px solid rgba(74, 111, 165, 0.15);
+  border-top-color: var(--sb-red-500, #e8192d);
+  border-radius: 50%;
+  animation: sb-cfr-spin 0.8s linear infinite;
+}
+
+@keyframes sb-cfr-spin {
+  to { transform: rotate(360deg); }
+}
+
+.sb-cfr__locating-text {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.3);
+}
+
+/* ── Header ──────────────────────────────────── */
+.sb-cfr__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  animation: sb-cfr-fade-up 0.4s ease both;
+}
+
+.sb-cfr__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.sb-cfr__radar-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sb-red-500, #e8192d);
+  box-shadow: 0 0 0 0 rgba(232, 25, 45, 0.4);
+  animation: sb-cfr-radar-ping 1.6s ease-out infinite;
+}
+
+@keyframes sb-cfr-radar-ping {
+  0%   { box-shadow: 0 0 0 0 rgba(232, 25, 45, 0.5); }
+  70%  { box-shadow: 0 0 0 10px rgba(232, 25, 45, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(232, 25, 45, 0); }
+}
+
+.sb-cfr__eyebrow-text {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(232, 25, 45, 0.65);
+}
+
+.sb-cfr__title {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--sb-white, #f5f8fc);
+  line-height: 1;
+  margin: 0;
+}
+
+.sb-cfr__title-accent {
+  color: var(--sb-red-500, #e8192d);
+}
+
+/* ── Duty Badge ──────────────────────────────── */
+.sb-cfr__duty-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 1rem 0.35rem 0.6rem;
+  background: rgba(34, 197, 94, 0.07);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 100px;
+  flex-shrink: 0;
+  margin-top: 0.3rem;
+}
+
+.sb-cfr__duty-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 5px rgba(34, 197, 94, 0.7);
+  animation: sb-cfr-blink 1.8s ease-in-out infinite;
+}
+
+.sb-cfr__duty-text {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #4ade80;
+}
+
+/* ── Subtitle ────────────────────────────────── */
+.sb-cfr__subtitle {
+  font-size: 0.875rem;
+  color: rgba(168, 189, 216, 0.42);
+  line-height: 1.65;
+  max-width: 520px;
+  margin-bottom: 2rem;
+  animation: sb-cfr-fade-up 0.4s 0.08s ease both;
+}
+
+/* ── Stats Row ───────────────────────────────── */
+.sb-cfr__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  animation: sb-cfr-fade-up 0.4s 0.12s ease both;
+}
+
+.sb-cfr__stat-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(8, 15, 30, 0.7);
+  border: 1px solid rgba(74, 111, 165, 0.13);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  gap: 0.2rem;
+}
+
+.sb-cfr__stat-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.33);
+}
+
+.sb-cfr__stat-value {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--sb-white, #f5f8fc);
+  line-height: 1;
+}
+
+.sb-cfr__stat-value--red  { color: var(--sb-red-500, #e8192d); }
+.sb-cfr__stat-value--green { color: #4ade80; }
+
+.sb-cfr__stat-sub {
+  font-size: 0.68rem;
+  color: rgba(168, 189, 216, 0.28);
+}
+
+/* ── Section Label ───────────────────────────── */
+.sb-cfr__section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  animation: sb-cfr-fade-up 0.4s 0.16s ease both;
+}
+
+.sb-cfr__section-label-text {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.33);
+  white-space: nowrap;
+}
+
+.sb-cfr__section-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(74, 111, 165, 0.1);
+}
+
+/* ── Emergency Cards ─────────────────────────── */
+.sb-cfr__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sb-cfr__card {
+  position: relative;
+  background: rgba(8, 15, 30, 0.65);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(232, 25, 45, 0.2);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+  animation: sb-cfr-fade-up 0.4s ease both;
+}
+
+.sb-cfr__cards .sb-cfr__card:nth-child(1) { animation-delay: 0.18s; }
+.sb-cfr__cards .sb-cfr__card:nth-child(2) { animation-delay: 0.24s; }
+.sb-cfr__cards .sb-cfr__card:nth-child(3) { animation-delay: 0.30s; }
+.sb-cfr__cards .sb-cfr__card:nth-child(4) { animation-delay: 0.36s; }
+
+.sb-cfr__card:hover {
+  border-color: rgba(232, 25, 45, 0.38);
+  box-shadow: 0 0 36px rgba(232, 25, 45, 0.07);
+}
+
+/* Red vertical accent bar */
+.sb-cfr__card-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(
+    180deg,
+    var(--sb-red-500, #e8192d) 0%,
+    rgba(232, 25, 45, 0.25) 100%
+  );
+}
+
+/* ── Urgency Chip ────────────────────────────── */
+.sb-cfr__urgency-chip {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  background: rgba(232, 25, 45, 0.09);
+  border: 1px solid rgba(232, 25, 45, 0.22);
+  border-radius: 20px;
+}
+
+.sb-cfr__urgency-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--sb-red-500, #e8192d);
+  animation: sb-cfr-blink 1s ease-in-out infinite;
+}
+
+.sb-cfr__urgency-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sb-red-400, #ff2d42);
+}
+
+/* ── Card Body ───────────────────────────────── */
+.sb-cfr__card-body {
+  padding: 1.25rem 1.5rem 1.25rem 1.75rem;
+}
+
+.sb-cfr__card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.sb-cfr__card-title {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--sb-white, #f5f8fc);
+  margin-bottom: 0.35rem;
+}
+
+.sb-cfr__card-address {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: rgba(168, 189, 216, 0.52);
+  line-height: 1.5;
+}
+
+.sb-cfr__card-address-icon {
+  color: rgba(232, 25, 45, 0.55);
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+.sb-cfr__card-patient {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(168, 189, 216, 0.3);
+  margin-top: 0.3rem;
+}
+
+/* ── Distance Badge ──────────────────────────── */
+.sb-cfr__card-distance {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.sb-cfr__distance-num {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--sb-red-500, #e8192d);
+  line-height: 1;
+}
+
+.sb-cfr__distance-unit {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(168, 189, 216, 0.3);
+  display: block;
+  margin-top: 0.1rem;
+}
+
+.sb-cfr__card-status {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(251, 146, 60, 0.8);
+  background: rgba(251, 146, 60, 0.07);
+  border: 1px solid rgba(251, 146, 60, 0.18);
+  border-radius: 4px;
+  padding: 0.15rem 0.5rem;
+  margin-top: 0.4rem;
+}
+
+/* ── Card Divider + Footer ───────────────────── */
+.sb-cfr__card-divider {
+  height: 1px;
+  background: rgba(232, 25, 45, 0.07);
+  margin: 0 1.75rem;
+}
+
+.sb-cfr__card-footer {
+  padding: 0.9rem 1.5rem 1.25rem 1.75rem;
+}
+
+/* ── Respond Button ──────────────────────────── */
+.sb-cfr__btn-respond {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 1.05rem 2rem;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform 130ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 130ms ease,
+    background 200ms ease;
+  background: var(--sb-red-500, #e8192d);
+  color: #ffffff;
+  box-shadow:
+    0 4px 20px rgba(232, 25, 45, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.sb-cfr__btn-respond:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 32px rgba(232, 25, 45, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.sb-cfr__btn-respond:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 12px rgba(232, 25, 45, 0.2);
+}
+
+.sb-cfr__btn-respond--active {
+  background: #16a34a;
+  cursor: default;
+  box-shadow: 0 4px 20px rgba(22, 163, 74, 0.25);
+}
+
+.sb-cfr__btn-respond--active:hover {
+  transform: none;
+  box-shadow: 0 4px 20px rgba(22, 163, 74, 0.25);
+}
+
+.sb-cfr__btn-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* ── Empty State ─────────────────────────────── */
+.sb-cfr__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  padding: 4rem 2rem;
+  background: rgba(8, 15, 30, 0.5);
+  border: 1px dashed rgba(74, 111, 165, 0.14);
+  border-radius: 16px;
+  text-align: center;
+  animation: sb-cfr-fade-up 0.4s 0.18s ease both;
+}
+
+.sb-cfr__empty-icon {
+  font-size: 2.5rem;
+  opacity: 0.28;
+}
+
+.sb-cfr__empty-title {
+  font-family: var(--sb-font-display, 'Syne', sans-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(168, 189, 216, 0.38);
+  margin: 0;
+}
+
+.sb-cfr__empty-sub {
+  font-size: 0.82rem;
+  color: rgba(168, 189, 216, 0.22);
+  line-height: 1.65;
+  max-width: 280px;
+}
+
+/* ── Keyframes ───────────────────────────────── */
+@keyframes sb-cfr-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sb-cfr-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 560px) {
+  .sb-cfr__page {
+    padding: 1.75rem 1rem 3rem;
+  }
+
+  .sb-cfr__title {
+    font-size: 1.75rem;
+  }
+
+  .sb-cfr__stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .sb-cfr__stat-value {
+    font-size: 1.35rem;
+  }
+
+  .sb-cfr__card-top {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .sb-cfr__card-distance {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .sb-cfr__card-body,
+  .sb-cfr__card-footer {
+    padding-left: 1.25rem;
+  }
+
+  .sb-cfr__card-divider {
+    margin: 0 1.25rem;
+  }
+}
+
+/* ── Reduced Motion ──────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .sb-cfr__radar-dot,
+  .sb-cfr__duty-dot,
+  .sb-cfr__urgency-dot,
+  .sb-cfr__spinner {
+    animation: none;
+  }
+
+  .sb-cfr__page > *,
+  .sb-cfr__card,
+  .sb-cfr__empty,
+  .sb-cfr__stats,
+  .sb-cfr__section-label {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
