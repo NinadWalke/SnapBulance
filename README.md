@@ -4,7 +4,7 @@
 > *Reducing response times through intelligent routing, community alerts, and automated hospital handshakes.*
 <div align="center">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License"/>
-  <img src="https://img.shields.io/badge/Status-In%20Development-orange?style=for-the-badge" alt="Status"/>
+  <img src="https://img.shields.io/badge/Status-MVP%20Completed-success?style=for-the-badge" alt="Status"/>
 </div>
 
 <br />
@@ -32,30 +32,30 @@
 
 ## 📖 Overview
 
-**SnapBulance** is a full-stack emergency logistics platform designed to solve the critical "last mile" problems in ambulance dispatch. While ride-sharing apps have perfected pickup logistics, emergency services often suffer from traffic delays and lack of hospital preparedness.
+**SnapBulance** is a full-stack emergency logistics platform built to solve the critical "last mile" problems in ambulance dispatch. While ride-sharing apps have perfected pickup logistics, emergency services routinely suffer from traffic delays and lack of hospital preparedness.
 
-SnapBulance treats EMS as a **real-time distributed system**. It offers instant booking, intelligent pathfinding that prioritizes wide roads, preemptive proximity alerts to clear traffic, and automated data relay to destination hospitals.
+SnapBulance treats EMS as a **real-time distributed system**. The MVP delivers instant booking, intelligent pathfinding that prioritizes wide roads, preemptive proximity alerts to clear traffic, and automated data relay to destination hospitals — all running on a cloud-native, Kubernetes-orchestrated infrastructure.
 
 ---
 
 ## 🚀 Key Features
 
 ### 1. 🚨 The "Ola" for Ambulances (Dispatch Engine)
-- **Instant Dispatch:** One-tap emergency request with precise geolocation.
-- **Smart Matching:** Algorithms match the nearest *equipped* ambulance (ALS vs. BLS) to the patient, not just the geographically closest one.
-- **Live Tracking:** Real-time WebSocket-based tracking for the user (60fps updates) using Redis geospatial data.
+- **Instant Dispatch:** One-tap emergency request with precise geolocation, live and operational.
+- **Smart Matching:** Algorithms match the nearest *equipped* ambulance (ALS vs. BLS) to the patient — prioritizing capability, not just proximity.
+- **Live Tracking:** Real-time WebSocket-based tracking delivers sub-second location updates to the hospital dashboard using Redis-backed socket sessions.
 
 ### 2. 🗺️ Route Optimization & Proximity Alerts
-- **Calculate the perfect route:** Drivers will get the perfect route calculated towards the nearest hospital by our geocoding modules.
-- **Dynamic Geofencing:** Uses PostGIS to create a moving buffer zone around the ambulance, alerting only relevant users (avoiding notification fatigue).
+- **Optimized Routing:** Drivers receive the fastest route to the nearest hospital, calculated on the fly by our OSRM-powered geocoding module.
+- **Dynamic Geofencing:** PostGIS powers a moving buffer zone around the ambulance, alerting only relevant nearby users and avoiding notification fatigue.
 
 ### 3. 🏥 Digital Handshake (Hospital Dashboard)
-- **Pre-Arrival Vitals:** Paramedics input vitals during transit.
-- **Automated Triage:** The destination hospital receives a real-time dashboard update with patient status, ETA, and required resources (ICU/Ventilator) *before* the ambulance arrives.
-- **AI Triage Integration:** Uses **Gemini Flash (Free Tier)** to parse voice notes from paramedics and auto-fill the patient report forms.
+- **Pre-Arrival Vitals:** Paramedics input patient vitals during transit, streamed directly to the receiving hospital in real time.
+- **Automated Triage:** The destination hospital receives a live dashboard update with patient status, ETA, and required resources (ICU/Ventilator) *before* the ambulance arrives.
+- **AI Triage Integration:** **Gemini Flash (Free Tier)** parses voice notes from paramedics and auto-fills patient report forms as structured JSON — reducing manual data entry in critical moments.
 
 ### 4. 🤝 Community First Responder (CFR) Network
-- **CPR Bridge:** Simultaneously alerts verified CPR-certified volunteers within a 400m radius of a cardiac event to provide aid while the ambulance is en route.
+- **CPR Bridge:** Simultaneously alerts verified CPR-certified volunteers within a 400m radius of a cardiac event to provide immediate aid while the ambulance is en route.
 
 ---
 
@@ -79,7 +79,7 @@ SnapBulance treats EMS as a **real-time distributed system**. It offers instant 
 - **Nginx:** Reverse proxy and load balancing.
 
 ### AI & Intelligence
-- **Gemini API (Free Tier):** fast, lightweight LLM for converting voice-to-text triage notes into structured JSON data for hospitals.
+- **Gemini API (Free Tier):** Fast, lightweight LLM for converting voice-to-text triage notes into structured JSON data for hospitals.
 
 ---
 
@@ -102,11 +102,27 @@ SnapBulance treats EMS as a **real-time distributed system**. It offers instant 
 
 ---
 
+## 🔬 Under the Hood (Implementation Details)
+
+A summary of the core engineering decisions that power the MVP:
+
+- **Location Tracking & ETA:** Integrated the **OSRM (Open Source Routing Machine) API** to calculate real-time ambulance ETAs and generate route geometry. The frontend decodes OSRM's polyline response to draw the live route overlay on the React/Leaflet map — with no per-request billing.
+
+- **Real-Time Sockets:** Built a `LocationGateway` using **NestJS WebSockets** (`@nestjs/platform-socket.io`). Hospitals join dedicated Socket.IO **rooms** keyed by their ID on login, so ambulance location broadcasts are scoped exclusively to the relevant hospital — achieving sub-second latency with a **Redis adapter** ensuring message delivery across multiple backend replicas.
+
+- **Security & Stability:** Applied a custom global `HttpExceptionFilter` across all routes, guaranteeing the frontend always receives a clean, predictable error JSON envelope regardless of where an exception originates. `@nestjs/throttler` enforces strict per-IP rate limiting (100 requests / 60 seconds) globally via `APP_GUARD`, protecting against brute-force and DDoS vectors.
+
+- **Caching & Session Management:** Redis serves a dual role — caching expensive, infrequently-changing PostgreSQL queries (such as hospital lists) to cut database load, and storing active `socketId → userId` session mappings to enable fast, stateless WebSocket message routing across pods.
+
+- **Cloud-Native Infrastructure:** The entire stack is fully Dockerized using multi-stage builds for minimal image sizes. Kubernetes manifests cover **ConfigMaps & Secrets** (decoupling config from code), **Deployments** with 3 HA replicas and rolling update strategies for the backend, `livenessProbe` / `readinessProbe` health checks for automatic pod recovery, and **ClusterIP Services** providing stable internal DNS (`redis-service`, `postgres-service`) so pods communicate reliably regardless of dynamic IP changes.
+
+---
+
 ## 📬 Contact & Inquiries
 
-Thank you for checking out SnapBulance! This project is currently in active development.
+SnapBulance's MVP is fully shipped — a distributed, real-time emergency dispatch system running on a production-grade Kubernetes cluster. Building this from scratch across the full stack, from WebSocket gateways and Redis session stores to K8s health probes and rolling deployments, has been an exercise in treating emergency logistics as the resilient distributed system it deserves to be.
 
-If you have any questions, suggestions, or would like to discuss the architecture, feel free to reach out:
+If you'd like to dig into the architecture, discuss the engineering tradeoffs, or explore collaboration opportunities, I'd love to hear from you.
 
 📧 **Email:** [ninadwalke00@gmail.com](mailto:ninadwalke00@gmail.com)
 

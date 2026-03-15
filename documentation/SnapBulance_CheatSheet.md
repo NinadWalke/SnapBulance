@@ -9,7 +9,7 @@
 npm create vite@latest client -- --template react-ts
 
 # Enter directory & Install
-cd client
+cd frontend
 npm install
 
 # Install Core Dependencies (Routing, State, API)
@@ -54,6 +54,9 @@ nest new server
 
 # Install Essential Libraries (Validation, Config, Throttling)
 npm install class-validator class-transformer @nestjs/config @nestjs/throttler
+
+# Install Caching & Rate Limiting
+npm install @nestjs/cache-manager cache-manager-redis-yet @nestjs/throttler
 ```
 
 ### Running the Server
@@ -174,6 +177,18 @@ docker-compose down -v
 docker logs -f <container_name>
 ```
 
+### System Cleanup
+
+> ⚠️ **WARNING:** The command below is destructive. It removes ALL unused containers,
+> images, networks, and volumes — including build cache. Only run this when you want
+> a completely clean Docker environment and are sure you don't need any stopped
+> containers or untagged images.
+
+```bash
+# Nuclear cleanup — reclaims all unused RAM/Disk space
+docker system prune -a --volumes
+```
+
 ### Redis Specifics
 
 ```bash
@@ -266,6 +281,93 @@ git commit -m "feat: implemented auth module with jwt guard"
 # 4. Push
 git push origin main
 ```
+
+---
+
+## 8. ☸️ Kubernetes & Minikube (Orchestration)
+
+### Cluster Setup
+
+```bash
+# Start a local K8s cluster using Docker as the driver
+minikube start --driver=docker
+
+# Point your terminal's Docker CLI to Minikube's internal Docker daemon
+# IMPORTANT: Run this before building images — it ensures images land
+# inside the cluster and are available to pods without a registry push
+eval $(minikube docker-env)
+
+# Build images directly into the Minikube cluster
+docker build -t snapbulance-backend:latest ./backend
+docker build -t snapbulance-frontend:latest ./frontend
+```
+
+### Deploying
+
+```bash
+# Apply all manifests in the k8s/ directory at once
+kubectl apply -f k8s/
+```
+
+### Monitoring & Debugging
+
+```bash
+# Watch all pods in real-time (Ctrl+C to exit)
+kubectl get pods -w
+
+# Inspect a pod's full event log and config (great for CrashLoopBackOff errors)
+kubectl describe pod <pod-name>
+
+# Stream logs from a running pod
+kubectl logs <pod-name>
+
+# Stream logs continuously (follow mode)
+kubectl logs -f <pod-name>
+```
+
+### Port Forwarding (Local Access)
+
+```bash
+# Forward a K8s service port to your local machine for testing
+# Access the backend at http://localhost:3001 while it runs on port 3000 inside the cluster
+kubectl port-forward service/backend-service 3001:3000
+```
+
+### Teardown
+
+```bash
+# Stop the Minikube cluster (preserves state, can be restarted)
+minikube stop
+
+# Completely delete the cluster and free all resources
+minikube delete
+```
+
+---
+
+## 9. 🗺️ Routing & Maps (OSRM)
+
+We use the **Open Source Routing Machine (OSRM)** as our routing engine instead of paid third-party APIs (e.g., Google Maps Platform). OSRM is self-hostable, built on OpenStreetMap data, and has no per-request billing — making it ideal for a high-frequency emergency dispatch system.
+
+**What we use it for:**
+- Calculating real-time ambulance ETAs to destination hospitals
+- Generating route geometry (encoded polylines) that the React frontend decodes and renders as the live route overlay on the map
+
+**Endpoint pattern:**
+
+```
+GET /route/v1/driving/{lng_origin},{lat_origin};{lng_dest},{lat_dest}?overview=full&geometries=polyline
+```
+
+> **Note:** OSRM uses `longitude, latitude` ordering (GeoJSON convention) — the reverse of what most GPS libraries return. Always swap coordinates before sending the request.
+
+**Key response fields:**
+
+| Field | Description |
+|---|---|
+| `routes[0].duration` | ETA in seconds |
+| `routes[0].distance` | Route distance in metres |
+| `routes[0].geometry` | Encoded polyline — decode on the frontend to draw the route |
 
 ---
 
