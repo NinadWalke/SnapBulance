@@ -24,7 +24,7 @@ export class AuthService {
 
   async signUserUp(dto: SignupDto, res: Response) {
     try {
-      // 1. Check if user already exists (by email OR phone)
+      // 1. Check if user already exists
       const existingUser = await this.prisma.user.findFirst({
         where: {
           OR: [
@@ -39,33 +39,81 @@ export class AuthService {
       }
 
       // 2. Generate password hash
-      // Note: your DTO names the incoming password string "passwordHash", 
-      // so we hash dto.passwordHash to store in the DB's passwordHash field.
       const hashed = await argon.hash(dto.passwordHash);
 
-      // 3. Save the new user to the database
+      // 3. Build the User Create Payload
+      const role = dto.role || 'USER';
+      const userCreateData: any = {
+        email: dto.email.toLowerCase(),
+        phone: dto.phone,
+        fullName: dto.fullName,
+        passwordHash: hashed,
+        role: role,
+      };
+
+      // 4. Attach nested profiles with hardcoded Dev coordinates (Thane)
+      if (role === 'DRIVER') {
+        userCreateData.driverProfile = {
+          create: {
+            licenseNumber: `PENDING-DL-${Date.now()}`, 
+            yearsExperience: 0,
+            status: 'AVAILABLE', // Set to AVAILABLE so distance math runs
+            currentLat: 19.1973, // Default: Thane
+            currentLng: 72.9644,
+            ambulance: {         // Attach a dummy ambulance so the profile is complete
+              create: {
+                plateNumber: `PENDING-AB-${Date.now()}`,
+                type: 'BLS',
+                model: 'Pending Vehicle',
+                equipmentList: ['Basic First Aid'],
+              }
+            }
+          },
+        };
+      } else if (role === 'CFR') {
+        userCreateData.cfrProfile = {
+          create: {
+            certificationId: `PENDING-CFR-${Date.now()}`,
+            isVerified: true, // Auto-verify for dev testing
+            // Note: Add currentLat and currentLng here AFTER updating Prisma schema
+          },
+        };
+      } else if (role === 'HOSPITAL_ADMIN') {
+        userCreateData.hospitalProfile = {
+          create: {
+            hospital: {
+              create: {
+                name: `Pending Hospital ${Date.now()}`,
+                address: 'Thane Area, Default',
+                latitude: 19.2064, // Default: Thane
+                longitude: 72.9744,
+                phone: dto.phone,
+                availableBeds: 5,
+                icuAvailable: 1,
+                specialties: ['General'],
+              },
+            },
+          },
+        };
+      }
+
+      // 5. Save everything in one transaction
       const newUser = await this.prisma.user.create({
-        data: {
-          email: dto.email.toLowerCase(),
-          phone: dto.phone,
-          fullName: dto.fullName,
-          passwordHash: hashed,
-          role: dto.role || 'USER',
-        },
+        data: userCreateData,
       });
 
-      // 4. Sign the JWT access token
+      // 6. Sign JWT
       const token = await this.signToken(newUser.id, newUser.email, newUser.role);
 
-      // 5. Attach token to HTTP-only cookie
+      // 7. Attach Cookie
       res.cookie('access_token', token, {
         httpOnly: true,
         secure: this.config.get('NODE_ENV') === 'production',
         sameSite: 'lax', 
-        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        maxAge: 24 * 60 * 60 * 1000, 
       });
 
-      // 6. Strip the hash before returning the user object
+      // 8. Return safe user
       const { passwordHash, ...safeUser } = newUser;
 
       return { 

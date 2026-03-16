@@ -150,4 +150,32 @@ export class DevController {
     await this.seedSystem(); // Re-seed everything
     return { message: 'System completely reset and re-seeded.' };
   }
+
+  @Delete('wipe-all')
+  async wipeDatabase() {
+    // We use a transaction to ensure everything deletes safely
+    // Order matters here! Delete child tables before parent tables.
+    await this.prisma.$transaction([
+      this.prisma.chatMessage.deleteMany(),
+      this.prisma.proximityAlert.deleteMany(),
+      this.prisma.medicalReport.deleteMany(),
+      
+      this.prisma.trip.deleteMany(),
+      
+      this.prisma.hospitalProfile.deleteMany(),
+      this.prisma.cFRProfile.deleteMany(),
+      this.prisma.driverProfile.deleteMany(),
+      
+      this.prisma.ambulance.deleteMany(),
+      this.prisma.hospital.deleteMany(),
+      
+      // Finally, delete ALL users (including regular 'USER' roles)
+      this.prisma.user.deleteMany(), 
+    ]);
+
+    return { 
+      message: 'Database completely wiped. All records destroyed.',
+      timestamp: new Date().toISOString()
+    };
+  }
 }

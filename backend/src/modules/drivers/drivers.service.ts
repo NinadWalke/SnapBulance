@@ -29,11 +29,12 @@ export class DriversService {
   constructor(private prisma: PrismaService) {}
 
   async toggleStatus(userId: string, isOnline: boolean) {
+    console.log(userId);
     // Find the driver profile linked to this user
     const driverProfile = await this.prisma.driverProfile.findUnique({
       where: { userId },
     });
-
+    console.log(driverProfile);
     if (!driverProfile) {
       throw new NotFoundException('Driver profile not found for this user.');
     }
